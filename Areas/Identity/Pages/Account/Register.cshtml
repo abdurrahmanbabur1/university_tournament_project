@@ -44,6 +44,15 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-floating mb-3">
+                                    <input asp-for="Input.PhoneNumber" class="form-control" placeholder="05xx ..." />
+                                    <label asp-for="Input.PhoneNumber">Telefon Numarası</label>
+                                    <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
                                     <select asp-for="Input.Gender" class="form-select">
                                         <option value="">Seçiniz...</option>
                                         <option value="Erkek">Erkek</option>

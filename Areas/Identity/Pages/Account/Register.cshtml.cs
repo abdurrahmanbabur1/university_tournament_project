@@ -72,6 +72,11 @@ namespace UniversityTournamentPro.Areas.Identity.Pages.Account
             [EmailAddress(ErrorMessage = "Geçerli bir e-posta adresi giriniz.")]
             public string Email { get; set; }
 
+            [Required(ErrorMessage = "Telefon numarası zorunludur.")]
+            [Phone(ErrorMessage = "Geçerli bir telefon numarası giriniz.")]
+            [Display(Name = "Telefon Numarası")]
+            public string PhoneNumber { get; set; }
+
             [Required(ErrorMessage = "Şifre gereklidir.")]
             [StringLength(100, ErrorMessage = "Şifre en az {2} karakter olmalıdır.", MinimumLength = 6)]
             [DataType(DataType.Password)]
@@ -107,6 +112,7 @@ namespace UniversityTournamentPro.Areas.Identity.Pages.Account
                 user.Department = Input.Department;
                 user.StudentNo = Input.StudentNo;
                 user.Gender = Input.Gender;
+                user.PhoneNumber = Input.PhoneNumber;
                 user.IsApproved = false; // Varsayılan onaysız
                 user.CreatedDate = DateTime.Now;
 

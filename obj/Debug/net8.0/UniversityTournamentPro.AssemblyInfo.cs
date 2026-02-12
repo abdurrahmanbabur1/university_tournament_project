@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("UniversityTournamentPro")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6fa14bfb7cbc638c5a4bcfc23b5f68694552a9fb")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5ad1faeb5147d4588c68c3231e51c3fa2c384075")]
 [assembly: System.Reflection.AssemblyProductAttribute("UniversityTournamentPro")]
 [assembly: System.Reflection.AssemblyTitleAttribute("UniversityTournamentPro")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

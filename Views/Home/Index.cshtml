@@ -111,6 +111,10 @@
                     </div>
                 </div>
                 <div class="mb-3">
+                    <label class="small text-muted text-uppercase fw-bold mb-1">Yer / Konum</label>
+                    <div id="mt-location" class="fw-bold text-primary"></div>
+                </div>
+                <div class="mb-3">
                     <label class="small text-muted text-uppercase fw-bold mb-1">Açıklama</label>
                     <p id="mt-description" class="text-muted"></p>
                 </div>
@@ -163,7 +167,8 @@
                                 branch: '@(m.Branch?.Replace("'", "\\'"))',
                                 dateStr: '@m.MatchDate.ToString("dd.MM.yyyy HH:mm")',
                                 description: '@tDesc',
-                                quota: '@(m.Tournament?.Quota ?? 0)'
+                                quota: '@(m.Tournament?.Quota ?? 0)',
+                                location: '@(m.Location ?? m.Tournament?.Location ?? "Bilinmiyor")'
                             }
                         },
                         </text>
@@ -185,7 +190,8 @@
                                 branch: '@(t.Branch?.Replace("'", "\\'"))',
                                 dateStr: '@t.StartDate.ToString("dd.MM.yyyy")',
                                 description: '@tDesc',
-                                quota: '@t.Quota'
+                                quota: '@t.Quota',
+                                location: '@(t.Location ?? "Bilinmiyor")'
                             }
                         },
                         </text>
@@ -198,6 +204,7 @@
                     document.getElementById('mt-date').innerText = props.dateStr;
                     document.getElementById('mt-description').innerText = props.description;
                     document.getElementById('mt-quota').innerText = props.quota;
+                    document.getElementById('mt-location').innerText = props.location;
                     document.getElementById('mt-details-link').href = '/Home/Details/' + props.tournamentId;
                     new bootstrap.Modal(document.getElementById('tournamentModal')).show();
                 }

@@ -26,7 +26,7 @@
                     <thead class="bg-light">
                         <tr>
                             <th class="ps-4 py-3">Öğrenci Bilgileri</th>
-                            <th class="py-3 text-center">İletişim</th>
+                            <th class="py-3 text-center">İletişim & Tel</th>
                             <th class="py-3 text-center">Kayıt Tarihi</th>
                             <th class="py-3 text-center">Durum</th>
                             <th class="text-center py-3">İşlemler</th>
@@ -57,9 +57,10 @@
                                     </div>
                                 </td>
                                 <td class="text-center">
-                                    <a href="mailto:@user.Email" class="text-decoration-none text-primary fw-medium" title="E-posta Gönder">
-                                        <i class="bi bi-envelope-at me-1"></i> @user.Email
-                                    </a>
+                                    <div class="fw-medium">@user.Email</div>
+                                    <div class="text-success small fw-bold mt-1">
+                                        <i class="bi bi-telephone-fill me-1"></i> @(string.IsNullOrEmpty(user.PhoneNumber) ? "Belirtilmemiş" : user.PhoneNumber)
+                                    </div>
                                 </td>
                                 <td class="text-center text-muted small">
                                     @user.CreatedDate.ToString("dd.MM.yyyy HH:mm")

@@ -1,0 +1,92 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.WebUtilities;
+using UniversityTournamentPro.Models;
+
+namespace UniversityTournamentPro.Areas.Identity.Pages.Account
+{
+    [AllowAnonymous]
+    public class ResetPasswordModel : PageModel
+    {
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        public ResetPasswordModel(UserManager<ApplicationUser> userManager)
+        {
+            _userManager = userManager;
+        }
+
+        [BindProperty]
+        public InputModel Input { get; set; }
+
+        public class InputModel
+        {
+            [Required(ErrorMessage = "E-posta adresi gereklidir.")]
+            [EmailAddress(ErrorMessage = "Geçerli bir e-posta adresi giriniz.")]
+            public string Email { get; set; }
+
+            [Required(ErrorMessage = "Yeni şifre gereklidir.")]
+            [StringLength(100, ErrorMessage = "{0} en az {2} karakter olmalıdır.", MinimumLength = 6)]
+            [DataType(DataType.Password)]
+            [Display(Name = "Yeni Şifre")]
+            public string Password { get; set; }
+
+            [DataType(DataType.Password)]
+            [Display(Name = "Yeni Şifre Tekrar")]
+            [Compare("Password", ErrorMessage = "Şifreler uyuşmuyor.")]
+            public string ConfirmPassword { get; set; }
+
+            public string Code { get; set; }
+        }
+
+        public IActionResult OnGet(string code = null)
+        {
+            if (code == null)
+            {
+                return BadRequest("Şifre sıfırlama için bir kod sağlanmalıdır.");
+            }
+            else
+            {
+                Input = new InputModel
+                {
+                    Code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code))
+                };
+                return Page();
+            }
+        }
+
+        public async Task<IActionResult> OnPostAsync()
+        {
+            if (!ModelState.IsValid)
+            {
+                return Page();
+            }
+
+            var user = await _userManager.FindByEmailAsync(Input.Email);
+            if (user == null)
+            {
+                // Bilgi sızdırmamak için yine de onay sayfasına yönlendiriyoruz
+                return RedirectToPage("./ResetPasswordConfirmation");
+            }
+
+            var result = await _userManager.ResetPasswordAsync(user, Input.Code, Input.Password);
+            if (result.Succeeded)
+            {
+                return RedirectToPage("./ResetPasswordConfirmation");
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+            return Page();
+        }
+    }
+}

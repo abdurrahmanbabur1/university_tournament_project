@@ -56,10 +56,9 @@ namespace UniversityTournamentPro.Controllers
             return View(logs);
         }
 
-        // --- 3. TURNUVA YÖNETİMİ ---
         public async Task<IActionResult> Tournaments()
         {
-            var tournaments = await _context.Tournaments.ToListAsync();
+            var tournaments = await _context.Tournaments.OrderByDescending(t => t.StartDate).ToListAsync();
             return View(tournaments);
         }
 
@@ -370,24 +369,74 @@ namespace UniversityTournamentPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ManageSettings(SiteSetting model)
         {
-            var existing = await _context.SiteSettings.FirstOrDefaultAsync();
-            if (existing == null) _context.SiteSettings.Add(model);
-            else
+            try
             {
-                existing.UniversityName = model.UniversityName;
-                existing.SksEmail = model.SksEmail;
-                existing.SksPhone = model.SksPhone;
-                existing.InstagramUrl = model.InstagramUrl;
-                _context.Update(existing);
+                var existing = await _context.SiteSettings.FirstOrDefaultAsync();
+                if (existing == null)
+                {
+                    // Yeni kayıt oluştururken de boşlukları temizleyelim
+                    model.UniversityName = model.UniversityName ?? "Malatya Turgut Özal Üniversitesi";
+                    model.SksAddress = model.SksAddress ?? "";
+                    model.SksEmail = model.SksEmail ?? "";
+                    model.SksPhone = model.SksPhone ?? "";
+                    model.SksPhone2 = model.SksPhone2 ?? "";
+                    model.SksPhone3 = model.SksPhone3 ?? "";
+                    model.InstagramUrl = model.InstagramUrl ?? "";
+                    model.TwitterUrl = model.TwitterUrl ?? "";
+                    model.YoutubeUrl = model.YoutubeUrl ?? "";
+                    model.FacebookUrl = model.FacebookUrl ?? "";
+                    
+                    _context.SiteSettings.Add(model);
+                }
+                else
+                {
+                    // Tüm alanları güncelleyelim ve null gelirse boş string yapalım (DB IsRequired olduğu için)
+                    existing.UniversityName = model.UniversityName ?? "Malatya Turgut Özal Üniversitesi";
+                    existing.SksAddress = model.SksAddress ?? "";
+                    existing.SksEmail = model.SksEmail ?? "";
+                    existing.SksPhone = model.SksPhone ?? "";
+                    existing.SksPhone2 = model.SksPhone2 ?? "";
+                    existing.SksPhone3 = model.SksPhone3 ?? "";
+                    existing.InstagramUrl = model.InstagramUrl ?? "";
+                    existing.TwitterUrl = model.TwitterUrl ?? "";
+                    existing.YoutubeUrl = model.YoutubeUrl ?? "";
+                    existing.FacebookUrl = model.FacebookUrl ?? "";
+                    
+                    _context.Update(existing);
+                }
+
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Ayarlar başarıyla kaydedildi.";
+                return RedirectToAction(nameof(Dashboard));
             }
-            await _context.SaveChangesAsync();
-            TempData["Success"] = "Ayarlar kaydedildi.";
-            return RedirectToAction(nameof(Dashboard));
+            catch (Exception ex)
+            {
+                var fullMessage = ex.InnerException != null ? ex.Message + " | İç Hata: " + ex.InnerException.Message : ex.Message;
+                TempData["Error"] = "Ayarlar kaydedilirken bir hata oluştu: " + fullMessage;
+                return View(model);
+            }
         }
 
         public async Task<IActionResult> Announcements()
         {
-            return View(await _context.Announcements.OrderByDescending(a => a.CreatedDate).ToListAsync());
+            try
+            {
+                var tournaments = await _context.Tournaments.ToListAsync();
+                ViewBag.Tournaments = tournaments ?? new List<Tournament>();
+                
+                var announcements = await _context.Announcements
+                    .Include(a => a.Tournament)
+                    .OrderByDescending(a => a.CreatedDate)
+                    .ToListAsync();
+                return View(announcements);
+            }
+            catch (Exception ex)
+            {
+                // Hata durumunda boş listelerle dönelim ki sayfa patlamasın, admin görsün
+                ViewBag.Tournaments = new List<Tournament>();
+                TempData["Error"] = "Duyurular yüklenirken bir hata oluştu: " + ex.Message;
+                return View(new List<Announcement>());
+            }
         }
 
         [HttpPost]
@@ -407,6 +456,31 @@ namespace UniversityTournamentPro.Controllers
                 _context.Add(announcement);
                 await _context.SaveChangesAsync();
                 TempData["Success"] = "Duyuru yayınlandı!";
+            }
+            return RedirectToAction(nameof(Announcements));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteAnnouncement(int id)
+        {
+            var announcement = await _context.Announcements.FindAsync(id);
+            if (announcement != null)
+            {
+                // Görseli klasörden de silelim (Opsiyonel ama temizlik iyidir)
+                if (!string.IsNullOrEmpty(announcement.ImageUrl) && !announcement.ImageUrl.Contains("default"))
+                {
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", announcement.ImageUrl.TrimStart('/'));
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        System.IO.File.Delete(filePath);
+                    }
+                }
+
+                _context.Announcements.Remove(announcement);
+                await _context.SaveChangesAsync();
+                await LogAction("Duyuru Silindi", $"'{announcement.Title}' kaldırıldı.");
+                TempData["Success"] = "Duyuru başarıyla silindi.";
             }
             return RedirectToAction(nameof(Announcements));
         }

@@ -20,7 +20,14 @@
                                 <tr>
                                     <td>@item.Emoji</td>
                                     <td>@item.Name</td>
-                                    <td><button class="btn btn-sm btn-outline-danger">Sil</button></td>
+                                    <td>
+                                        <form asp-action="DeleteBranch" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Bu branşı silmek istediğinize emin misiniz?');">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-trash me-1"></i>Sil
+                                            </button>
+                                        </form>
+                                    </td>
                                 </tr>
                             }
                         </tbody>

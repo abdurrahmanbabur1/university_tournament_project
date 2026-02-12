@@ -73,6 +73,14 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     try
     {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+        // 🔥 KRİTİK: Veritabanı şemasını otomatik güncelle (Location alanı için)
+        try {
+            await context.Database.ExecuteSqlRawAsync("IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Tournaments' AND COLUMN_NAME = 'Location') BEGIN ALTER TABLE Tournaments ADD Location NVARCHAR(MAX) NULL END");
+            await context.Database.ExecuteSqlRawAsync("IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'SiteSettings' AND COLUMN_NAME = 'SksPhone2') BEGIN ALTER TABLE SiteSettings ADD SksPhone2 NVARCHAR(MAX) NULL END");
+            await context.Database.ExecuteSqlRawAsync("IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'SiteSettings' AND COLUMN_NAME = 'SksPhone3') BEGIN ALTER TABLE SiteSettings ADD SksPhone3 NVARCHAR(MAX) NULL END");
+        } catch { /* Şema zaten güncelse veya hata olursa devam et */ }
+
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
 

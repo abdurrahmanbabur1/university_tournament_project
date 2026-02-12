@@ -18,10 +18,20 @@
                             <label class="form-label small fw-bold">SKS Ofis Adresi</label>
                             <textarea asp-for="SksAddress" class="form-control" rows="2"></textarea>
                         </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label small fw-bold">Telefon 1</label>
+                                <input asp-for="SksPhone" class="form-control" placeholder="0422 ..." />
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-bold">Telefon 2</label>
+                                <input asp-for="SksPhone2" class="form-control" />
+                            </div>
+                        </div>
                         <div class="row">
                             <div class="col-6">
-                                <label class="form-label small fw-bold">Telefon</label>
-                                <input asp-for="SksPhone" class="form-control" />
+                                <label class="form-label small fw-bold">Telefon 3</label>
+                                <input asp-for="SksPhone3" class="form-control" />
                             </div>
                             <div class="col-6">
                                 <label class="form-label small fw-bold">E-Posta</label>

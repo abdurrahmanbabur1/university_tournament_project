@@ -23,6 +23,9 @@ namespace UniversityTournamentPro.Models
         [Display(Name = "Açıklama")]
         public string Description { get; set; }
 
+        [Display(Name = "Turnuva Yeri")]
+        public string? Location { get; set; }
+
         // 🔥 YENİ: Kontenjan Alanı
         [Required(ErrorMessage = "Kontenjan zorunludur.")]
         [Display(Name = "Kontenjan")]

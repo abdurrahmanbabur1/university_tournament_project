@@ -22,7 +22,7 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-3 mb-3">
                                 <label asp-for="Branch" class="form-label fw-bold">Spor Branşı</label>
                                 @* 🔥 DİNAMİK BRANŞ SEÇİMİ BURADA *@
                                 <select asp-for="Branch" class="form-select" style="border-radius: 10px;">
@@ -40,15 +40,20 @@
                                     <a asp-action="ManageBranches" class="small text-decoration-none"><i class="bi bi-plus-circle me-1"></i>Yeni Branş Ekle</a>
                                 </div>
                             </div>
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-3 mb-3">
                                 <label asp-for="StartDate" class="form-label fw-bold">Başlangıç Tarihi</label>
                                 <input asp-for="StartDate" class="form-control" type="date" style="border-radius: 10px;" />
                                 <span asp-validation-for="StartDate" class="text-danger"></span>
                             </div>
-                            <div class="col-md-4 mb-3">
-                                <label asp-for="Quota" class="form-label fw-bold">Kontenjan (Takım)</label>
+                            <div class="col-md-3 mb-3">
+                                <label asp-for="Quota" class="form-label fw-bold">Kontenjan</label>
                                 <input asp-for="Quota" type="number" class="form-control" placeholder="Örn: 16" min="1" style="border-radius: 10px;" />
                                 <span asp-validation-for="Quota" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label asp-for="Location" class="form-label fw-bold">Turnuva Yeri</label>
+                                <input asp-for="Location" class="form-control" placeholder="Örn: Kapalı Spor Salonu" style="border-radius: 10px;" />
+                                <span asp-validation-for="Location" class="text-danger"></span>
                             </div>
                         </div>
 

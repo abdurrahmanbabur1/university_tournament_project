@@ -9,8 +9,8 @@ namespace UniversityTournamentPro.Services
         public Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
             // BURAYA KENDİ MAİLİMİZİ EKLEYECEĞİZ 
-            var mail = "senin-mail-adresin@gmail.com";
-            var pw = "google-uygulama-sifresi"; // Normal şifre değil, 'Uygulama Şifresi' olmalı
+            var mail = "zanababur99@gmail.com";
+            var pw = "fmup hbnq zsee xvgy"; // Normal şifre değil, 'Uygulama Şifresi' olmalı
 
             var client = new SmtpClient("smtp.gmail.com", 587)
             {

@@ -73,6 +73,20 @@
                         <textarea name="Content" class="form-control shadow-sm" rows="4" placeholder="Duyuru detaylarını yazın..." required style="border-radius: 10px;"></textarea>
                     </div>
 
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">İlgili Turnuva (Opsiyonel)</label>
+                        <select name="TournamentId" class="form-select shadow-sm" style="border-radius: 10px;">
+                            <option value="">-- Turnuva Seçin --</option>
+                            @if (ViewBag.Tournaments != null)
+                            {
+                                foreach (var t in (IEnumerable<UniversityTournamentPro.Models.Tournament>)ViewBag.Tournaments)
+                                {
+                                    <option value="@t.Id">@t.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
                     @* DOSYA YÜKLEME ALANI *@
                     <div class="mb-3">
                         <label class="form-label fw-bold small text-u-mavi">Duyuru Görseli Seç</label>

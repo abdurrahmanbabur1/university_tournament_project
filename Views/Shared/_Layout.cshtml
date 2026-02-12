@@ -2,6 +2,16 @@
 @inject ApplicationDbContext _context
 @{
     var settings = _context.SiteSettings.FirstOrDefault() ?? new UniversityTournamentPro.Models.SiteSetting();
+    
+    // Admin Bildirim Sayıları
+    int pendingUserCount = 0;
+    int pendingSelectionCount = 0;
+    
+    if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+    {
+        pendingUserCount = _context.Users.Count(u => !((UniversityTournamentPro.Models.ApplicationUser)u).IsApproved);
+        pendingSelectionCount = _context.TournamentSelections.Count(s => s.Status == "Onay Bekliyor");
+    }
 }
 
 <!DOCTYPE html>
@@ -48,8 +58,24 @@
                                     <a class="nav-link" asp-controller="Admin" asp-action="Dashboard">Gösterge Paneli</a>
                                 </li>
                                 <li class="nav-item"><a class="nav-link" asp-controller="Admin" asp-action="Tournaments">Turnuvalar</a></li>
-                                <li class="nav-item"><a class="nav-link" asp-controller="Admin" asp-action="ManageTeams">Takım Başvuruları</a></li>
-                                <li class="nav-item"><a class="nav-link" asp-controller="Admin" asp-action="Students">Kullanıcılar</a></li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Admin" asp-action="ManageTeams">
+                                        Takım Başvuruları
+                                        @if (pendingSelectionCount > 0)
+                                        {
+                                            <span class="badge rounded-pill bg-danger ms-1" style="font-size: 0.65rem;">@pendingSelectionCount</span>
+                                        }
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Admin" asp-action="Students">
+                                        Kullanıcılar
+                                        @if (pendingUserCount > 0)
+                                        {
+                                            <span class="badge rounded-pill bg-danger ms-1" style="font-size: 0.65rem;">@pendingUserCount</span>
+                                        }
+                                    </a>
+                                </li>
                                 <li class="nav-item"><a class="nav-link" asp-controller="Admin" asp-action="Announcements">Duyurular</a></li>
                                 <li class="nav-item"><a class="nav-link text-warning" asp-controller="Admin" asp-action="ManageSettings"><i class="bi bi-gear-fill"></i> Site Ayarları</a></li>
                             }
@@ -129,6 +155,8 @@
                     <h6 class="footer-title" style="color: #262F59 !important; border-bottom: 2px solid #262F59; display: inline-block; padding-bottom: 5px;">SKS İletişim</h6>
                     <p class="small mt-2 mb-1" style="color: #262F59 !important;"><i class="bi bi-geo-alt me-2"></i>@(string.IsNullOrEmpty(settings.SksAddress) ? "Adres Girilmemiş" : settings.SksAddress)</p>
                     <p class="small mb-1" style="color: #262F59 !important;"><i class="bi bi-telephone me-2"></i>@(string.IsNullOrEmpty(settings.SksPhone) ? "Telefon Girilmemiş" : settings.SksPhone)</p>
+                    @if (!string.IsNullOrEmpty(settings.SksPhone2)) { <p class="small mb-1 ps-4" style="color: #262F59 !important;">@settings.SksPhone2</p> }
+                    @if (!string.IsNullOrEmpty(settings.SksPhone3)) { <p class="small mb-1 ps-4" style="color: #262F59 !important;">@settings.SksPhone3</p> }
                     <p class="small" style="color: #262F59 !important;"><i class="bi bi-envelope me-2"></i>@settings.SksEmail</p>
                 </div>
                 <div class="col-lg-3 text-lg-end">
