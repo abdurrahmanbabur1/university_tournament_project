@@ -34,7 +34,7 @@
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom shadow-sm">
             <div class="container-fluid px-4">
                 <a class="navbar-brand d-flex align-items-center text-white" asp-area="" asp-controller="Home" asp-action="Index">
-                    <img src="~/images/AMBLEM.png" alt="Amblem" class="nav-logo me-2 shadow-sm" />
+                    <img src="~/images/DAİRESELLOGO.png" alt="Amblem" class="nav-logo me-2 shadow-sm rounded-circle bg-white p-1" style="width: 55px; height: 55px; object-fit: contain;" />
                     <span class="fw-bold">MTÜ Turnuva Sistemi</span>
                 </a>
 
@@ -58,6 +58,8 @@
                                     <a class="nav-link" asp-controller="Admin" asp-action="Dashboard">Gösterge Paneli</a>
                                 </li>
                                 <li class="nav-item"><a class="nav-link" asp-controller="Admin" asp-action="Tournaments">Turnuvalar</a></li>
+                                <li class="nav-item"><a class="nav-link" asp-controller="Admin" asp-action="Matches">Maç Programı</a></li>
+
                                 <li class="nav-item">
                                     <a class="nav-link" asp-controller="Admin" asp-action="ManageTeams">
                                         Takım Başvuruları
@@ -84,6 +86,10 @@
                                 <li class="nav-item border-start border-white border-opacity-25 ms-lg-2 ps-lg-2">
                                     <a class="nav-link" asp-controller="Student" asp-action="Index"><i class="bi bi-search me-1"></i> Turnuva Bul</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Student" asp-action="Matches"><i class="bi bi-calendar-event me-1"></i> Maçlar</a>
+                                </li>
+
                                 <li class="nav-item"><a class="nav-link" asp-controller="Student" asp-action="MyApplications">Başvurularım</a></li>
                                 <li class="nav-item"><a class="nav-link" asp-controller="Student" asp-action="Profile">Profilim</a></li>
                             }

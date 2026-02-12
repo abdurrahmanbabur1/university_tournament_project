@@ -15,9 +15,9 @@
                     <form asp-action="CreateMatch" method="post">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Bağlı Olduğu Turnuva</label>
-                            <select asp-for="TournamentId" class="form-select" style="border-radius: 10px;" required>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">1. Adım: Turnuva Seçiniz</label>
+                            <select asp-for="TournamentId" id="tournamentSelect" class="form-select form-select-lg" style="border-radius: 12px; border: 2px solid #eee;" required>
                                 <option value="">Turnuva Seçiniz...</option>
                                 @foreach (var t in ViewBag.Tournaments)
                                 {
@@ -26,10 +26,30 @@
                             </select>
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Title" class="form-label fw-bold">Maç Başlığı</label>
-                            <input asp-for="Title" class="form-control" placeholder="Örn: Mühendislik vs İİBF (Yarı Final)" style="border-radius: 10px;" />
-                            <span asp-validation-for="Title" class="text-danger small"></span>
+                        <div id="teamSelectionArea" style="display:none;" class="p-3 bg-light rounded-4 mb-4 border border-info border-opacity-25">
+                            <label class="form-label fw-bold mb-3"><i class="bi bi-people-fill me-2 text-info"></i>2. Adım: Takımları Seçin</label>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="TeamA" class="form-label small fw-bold text-uppercase">Takım A (Ev Sahibi)</label>
+                                    <select asp-for="TeamA" id="teamASelect" class="form-select" style="border-radius: 10px;" required>
+                                        <option value="">Lütfen Bekleyin...</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="TeamB" class="form-label small fw-bold text-uppercase">Takım B (Deplasman)</label>
+                                    <select asp-for="TeamB" id="teamBSelect" class="form-select" style="border-radius: 10px;" required>
+                                        <option value="">Lütfen Bekleyin...</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-12 mb-3">
+                                <label asp-for="Title" class="form-label fw-bold text-u-mavi">3. Adım: Maç Bilgileri</label>
+                                <input asp-for="Title" class="form-control" placeholder="Örn: Yarı Final Mücadelesi" style="border-radius: 10px;" />
+                                <span asp-validation-for="Title" class="text-danger small"></span>
+                            </div>
                         </div>
 
                         <div class="row mb-3">
@@ -45,26 +65,26 @@
                             </div>
                             <div class="col-md-6">
                                 <label asp-for="MatchDate" class="form-label fw-bold">Maç Tarihi ve Saati</label>
-                                <input asp-for="MatchDate" type="datetime-local" class="form-control" style="border-radius: 10px;" />
+                                <input asp-for="MatchDate" type="datetime-local" class="form-control" style="border-radius: 10px;" required />
                                 <span asp-validation-for="MatchDate" class="text-danger small"></span>
                             </div>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="Location" class="form-label fw-bold">Maç Yeri / Saha</label>
-                            <input asp-for="Location" class="form-control" placeholder="Örn: Kapalı Spor Salonu - Saha A" style="border-radius: 10px;" />
+                            <input asp-for="Location" class="form-control" placeholder="Örn: Kapalı Spor Salonu" style="border-radius: 10px;" required />
                             <span asp-validation-for="Location" class="text-danger small"></span>
                         </div>
 
                         <div class="mb-4">
-                            <label asp-for="Description" class="form-label fw-bold">Ek Notlar</label>
-                            <textarea asp-for="Description" class="form-control" rows="2" placeholder="Hakem bilgisi veya özel notlar..." style="border-radius: 10px;"></textarea>
+                            <label asp-for="Description" class="form-label fw-bold">Ek Mesaj / Açıklama</label>
+                            <textarea asp-for="Description" class="form-control" rows="2" placeholder="Örn: Katılım zorunludur." style="border-radius: 10px;"></textarea>
                         </div>
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                             <a asp-action="Matches" class="btn btn-outline-secondary px-4 me-md-2" style="border-radius: 10px;">İptal</a>
-                            <button type="submit" class="btn text-white px-5" style="background-color: var(--u-turkuaz); border-radius: 10px; font-weight: 600;">
-                                Maçı Kaydet ve Yayınla
+                            <button type="submit" class="btn text-white px-5" style="background-color: var(--u-mavi); border-radius: 10px; font-weight: 600;">
+                                Maçı Planla
                             </button>
                         </div>
                     </form>
@@ -73,3 +93,33 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#tournamentSelect').change(function () {
+                var tournamentId = $(this).val();
+                var teamASelect = $('#teamASelect');
+                var teamBSelect = $('#teamBSelect');
+                var teamArea = $('#teamSelectionArea');
+
+                if (tournamentId) {
+                    teamArea.slideDown();
+                    teamASelect.html('<option value="">Yükleniyor...</option>');
+                    teamBSelect.html('<option value="">Yükleniyor...</option>');
+
+                    $.getJSON('/Admin/GetTeamsByTournament', { tournamentId: tournamentId }, function (data) {
+                        var options = '<option value="">Takım Seçiniz...</option>';
+                        $.each(data, function (i, item) {
+                            options += '<option value="' + item.teamName + '">' + item.teamName + '</option>';
+                        });
+                        teamASelect.html(options);
+                        teamBSelect.html(options);
+                    });
+                } else {
+                    teamArea.slideUp();
+                }
+            });
+        });
+    </script>
+}

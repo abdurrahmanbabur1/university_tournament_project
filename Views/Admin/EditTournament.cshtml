@@ -33,7 +33,6 @@
                                 <input asp-for="StartDate" type="date" class="form-control" style="border-radius: 10px;" required />
                                 <span asp-validation-for="StartDate" class="text-danger"></span>
                             </div>
-                            @* 🔥 YENİ: KONTENJAN GÜNCELLEME ALANI *@
                             <div class="col-md-4">
                                 <label class="form-label fw-bold">Kontenjan</label>
                                 <input asp-for="Quota" type="number" class="form-control" style="border-radius: 10px;" min="1" required />
@@ -41,17 +40,44 @@
                             </div>
                         </div>
 
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Min Oyuncu Sayısı</label>
+                                <input asp-for="MinPlayerCount" type="number" class="form-control" style="border-radius: 10px;" min="1" required />
+                                <span asp-validation-for="MinPlayerCount" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Max Oyuncu Sayısı</label>
+                                <input asp-for="MaxPlayerCount" type="number" class="form-control" style="border-radius: 10px;" min="1" required />
+                                <span asp-validation-for="MaxPlayerCount" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Turnuva Yeri</label>
+                                <input asp-for="Location" class="form-control" style="border-radius: 10px;" />
+                                <span asp-validation-for="Location" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">Cinsiyet Kısıtlaması</label>
+                                <select asp-for="GenderCategory" class="form-select" style="border-radius: 10px;">
+                                    <option value="Karma">🌍 Karma (Herkes)</option>
+                                    <option value="Erkek">👨 Sadece Erkekler</option>
+                                    <option value="Kadın">👩 Sadece Kadınlar</option>
+                                </select>
+                                <span asp-validation-for="GenderCategory" class="text-danger"></span>
+                            </div>
+                        </div>
+
+
                         <div class="mb-3">
                             <label class="form-label fw-bold">Açıklama</label>
                             <textarea asp-for="Description" class="form-control" rows="3" style="border-radius: 10px;"></textarea>
                             <span asp-validation-for="Description" class="text-danger"></span>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Turnuva Yeri</label>
-                            <input asp-for="Location" class="form-control" style="border-radius: 10px;" />
-                            <span asp-validation-for="Location" class="text-danger"></span>
-                        </div>
+
 
                         <div class="form-check form-switch mb-4">
                             <input asp-for="IsActive" class="form-check-input" type="checkbox">

@@ -1,0 +1,128 @@
+@model IEnumerable<UniversityTournamentPro.Models.Match>
+
+@{
+    ViewData["Title"] = "Maç Programı";
+    Layout = "_Layout";
+}
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h2 class="fw-bold text-u-mavi mb-0"><i class="bi bi-calendar3 me-2 text-primary"></i>Maç Programı</h2>
+            <p class="text-muted mb-0">Üniversitemizdeki tüm spor branşlarının güncel maç takvimi.</p>
+        </div>
+        <div class="badge bg-light text-u-mavi border px-3 py-2 rounded-pill">
+            <i class="bi bi-clock-history me-1"></i> Son Güncelleme: @DateTime.Now.ToString("dd.MM.yyyy")
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="card border-0 shadow-sm rounded-4 p-5 text-center">
+            <div class="display-1 text-muted opacity-25 mb-4">
+                <i class="bi bi-calendar2-x"></i>
+            </div>
+            <h4 class="fw-bold">Şu an planlanmış bir maç bulunmamaktadır.</h4>
+            <p class="text-muted">Turnuvalar başladığında maç programı burada görünecektir.</p>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var item in Model)
+            {
+                <div class="col-lg-6">
+                    <div class="card h-100 border-0 shadow-lg rounded-4 overflow-hidden match-card">
+                        <div class="card-header bg-white border-0 p-3 pt-4 px-4 d-flex justify-content-between align-items-center">
+                            <span class="badge rounded-pill px-3 py-2 bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">
+                                <i class="bi bi-trophy-fill me-1"></i> @item.Tournament?.Name
+                            </span>
+                            <span class="small fw-bold text-muted text-uppercase">
+                                @item.Branch
+                            </span>
+                        </div>
+                        <div class="card-body p-4 px-5">
+                            <div class="row align-items-center text-center">
+                                <div class="col-5">
+                                    <div class="team-circle shadow-sm mb-3 mx-auto">@item.TeamA.Substring(0, 1).ToUpper()</div>
+                                    <h5 class="fw-bold text-u-mavi">@item.TeamA</h5>
+                                </div>
+                                <div class="col-2">
+                                    <div class="vs-divider shadow-sm">VS</div>
+                                </div>
+                                <div class="col-5">
+                                    <div class="team-circle shadow-sm mb-3 mx-auto" style="background: linear-gradient(135deg, #17a2b8, #117a8b);">@item.TeamB.Substring(0, 1).ToUpper()</div>
+                                    <h5 class="fw-bold text-u-mavi">@item.TeamB</h5>
+                                </div>
+                            </div>
+
+                            <hr class="my-4 opacity-5">
+
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-calendar2-week-fill text-primary me-3 fs-5"></i>
+                                        <div>
+                                            <small class="text-muted d-block fw-bold" style="font-size: 0.65rem; text-transform: uppercase;">Tarih</small>
+                                            <span class="fw-bold">@item.MatchDate.ToString("dd MMMM yyyy")</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6 border-start border-light">
+                                    <div class="d-flex align-items-center ps-3">
+                                        <i class="bi bi-clock-fill text-warning me-3 fs-5"></i>
+                                        <div>
+                                            <small class="text-muted d-block fw-bold" style="font-size: 0.65rem; text-transform: uppercase;">Saat</small>
+                                            <span class="fw-bold">@item.MatchDate.ToString("HH:mm")</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 mt-4">
+                                    <div class="d-flex align-items-center p-3 rounded-4 bg-light border border-light">
+                                        <i class="bi bi-geo-alt-fill text-danger me-3 fs-5"></i>
+                                        <div>
+                                            <small class="text-muted d-block fw-bold" style="font-size: 0.65rem; text-transform: uppercase;">Maç Yeri</small>
+                                            <span class="fw-bold text-dark">@(item.Location ?? "MTÜ Yerleşkesi")</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(item.Description))
+                        {
+                            <div class="card-footer bg-light border-0 p-3 px-4 italic small text-muted text-center">
+                                <i class="bi bi-info-circle me-1"></i> @item.Description
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    :root { --u-mavi: #262F59; }
+    .match-card { transition: all 0.3s ease; border: 1px solid rgba(0,0,0,0.05) !important; }
+    .match-card:hover { transform: translateY(-5px); box-shadow: 0 1rem 3rem rgba(0,0,0,0.1) !important; }
+    
+    .team-circle {
+        width: 60px; height: 60px;
+        background: linear-gradient(135deg, #262F59, #3f51b5);
+        color: white;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.5rem; font-weight: bold;
+    }
+    
+    .vs-divider {
+        width: 40px; height: 40px;
+        background: #f8f9fa;
+        color: var(--u-mavi);
+        border: 2px solid white;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.7rem; font-weight: 800;
+        margin: 0 auto;
+    }
+</style>

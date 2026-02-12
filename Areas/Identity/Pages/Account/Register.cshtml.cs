@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using UniversityTournamentPro.Models;
+using UniversityTournamentPro.Data;
 
 namespace UniversityTournamentPro.Areas.Identity.Pages.Account
 {
@@ -26,13 +27,15 @@ namespace UniversityTournamentPro.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<ApplicationUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly ApplicationDbContext _context;
 
         public RegisterModel(
             UserManager<ApplicationUser> userManager,
             IUserStore<ApplicationUser> userStore,
             SignInManager<ApplicationUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            ApplicationDbContext context)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -40,6 +43,7 @@ namespace UniversityTournamentPro.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _context = context;
         }
 
         [BindProperty]
@@ -123,6 +127,32 @@ namespace UniversityTournamentPro.Areas.Identity.Pages.Account
                     _logger.LogInformation("Kullanıcı tüm detaylarıyla oluşturuldu.");
 
                     await _userManager.AddToRoleAsync(user, "Ogrenci");
+
+                    // --- ADMİNE BİLGİLENDİRME MAİLİ GÖNDER ---
+                    try 
+                    {
+                        var settings = _context.SiteSettings.FirstOrDefault();
+                        var adminEmail = settings?.SksEmail ?? "zanababur99@gmail.com";
+                        
+                        string adminSubject = "Yeni Öğrenci Kayıt Başvurusu";
+                        string adminMessage = $@"
+                            <h3>Yeni Kayıt Bildirimi</h3>
+                            <p>Sisteme yeni bir öğrenci kayıt olmak için başvurdu. Detaylar:</p>
+                            <ul>
+                                <li><b>Ad Soyad:</b> {user.FirstName} {user.LastName}</li>
+                                <li><b>Öğrenci No:</b> {user.StudentNo}</li>
+                                <li><b>Fakülte/Bölüm:</b> {user.Faculty} / {user.Department}</li>
+                                <li><b>E-posta:</b> {user.Email}</li>
+                                <li><b>Telefon:</b> {user.PhoneNumber}</li>
+                            </ul>
+                            <p>Lütfen admin panelinden onaylayınız.</p>";
+
+                        await _emailSender.SendEmailAsync(adminEmail, adminSubject, adminMessage);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Admin kayıt bildirim maili gönderilemedi.");
+                    }
 
                     TempData["Success"] = "Kaydınız başarıyla alındı. Admin onayı sonrası giriş yapabilirsiniz.";
 

@@ -4,6 +4,9 @@ using UniversityTournamentPro.Data;
 using UniversityTournamentPro.Models;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using UniversityTournamentPro.Services;
+using System.Text.Encodings.Web;
+using System.Text.Unicode;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,8 +39,14 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
 .AddDefaultTokenProviders();
 
 builder.Services.AddTransient<IEmailSender, EmailSender>();
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options => {
+        options.JsonSerializerOptions.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);
+    });
 builder.Services.AddRazorPages();
+
+// --- TÜRKÇE KARAKTER DESTEĞİ (Razor için) ---
+builder.Services.AddSingleton<HtmlEncoder>(HtmlEncoder.Create(allowedRanges: new[] { UnicodeRanges.All }));
 
 var app = builder.Build();
 
@@ -77,6 +86,8 @@ using (var scope = app.Services.CreateScope())
         // 🔥 KRİTİK: Veritabanı şemasını otomatik güncelle (Location alanı için)
         try {
             await context.Database.ExecuteSqlRawAsync("IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Tournaments' AND COLUMN_NAME = 'Location') BEGIN ALTER TABLE Tournaments ADD Location NVARCHAR(MAX) NULL END");
+            await context.Database.ExecuteSqlRawAsync("IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Tournaments' AND COLUMN_NAME = 'MinPlayerCount') BEGIN ALTER TABLE Tournaments ADD MinPlayerCount INT NOT NULL DEFAULT 1 END");
+            await context.Database.ExecuteSqlRawAsync("IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Tournaments' AND COLUMN_NAME = 'MaxPlayerCount') BEGIN ALTER TABLE Tournaments ADD MaxPlayerCount INT NOT NULL DEFAULT 1 END");
             await context.Database.ExecuteSqlRawAsync("IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'SiteSettings' AND COLUMN_NAME = 'SksPhone2') BEGIN ALTER TABLE SiteSettings ADD SksPhone2 NVARCHAR(MAX) NULL END");
             await context.Database.ExecuteSqlRawAsync("IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'SiteSettings' AND COLUMN_NAME = 'SksPhone3') BEGIN ALTER TABLE SiteSettings ADD SksPhone3 NVARCHAR(MAX) NULL END");
         } catch { /* Şema zaten güncelse veya hata olursa devam et */ }

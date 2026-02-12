@@ -5,13 +5,14 @@ namespace UniversityTournamentPro.Models
     public class TournamentSelection
     {
         public int Id { get; set; }
-        public string TeamName { get; set; }
-        public string Faculty { get; set; } // Resimdeki hata: Geçersiz sütun
-        public string TeamManager { get; set; }
-        public string ManagerStudentNumber { get; set; }
-        public string Phone { get; set; }
+        public string? TeamName { get; set; }
+        public string? Faculty { get; set; } 
+        public string? TeamManager { get; set; }
+        public string? ManagerStudentNumber { get; set; }
+        public string? Phone { get; set; }
         public string? Email { get; set; }
-        public string TeamPlayers { get; set; } // CS1061 hatasını çözer
+        public string? TeamPlayers { get; set; } 
+
 
         public int TournamentId { get; set; }
         public Tournament? Tournament { get; set; }

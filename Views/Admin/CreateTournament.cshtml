@@ -51,11 +51,31 @@
                                 <span asp-validation-for="Quota" class="text-danger"></span>
                             </div>
                             <div class="col-md-3 mb-3">
+                                <label asp-for="MinPlayerCount" class="form-label fw-bold">Min Oyuncu</label>
+                                <input asp-for="MinPlayerCount" type="number" class="form-control" placeholder="1" min="1" style="border-radius: 10px;" />
+                                <span asp-validation-for="MinPlayerCount" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label asp-for="MaxPlayerCount" class="form-label fw-bold">Max Oyuncu</label>
+                                <input asp-for="MaxPlayerCount" type="number" class="form-control" placeholder="5" min="1" style="border-radius: 10px;" />
+                                <span asp-validation-for="MaxPlayerCount" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-3 mb-3">
                                 <label asp-for="Location" class="form-label fw-bold">Turnuva Yeri</label>
                                 <input asp-for="Location" class="form-control" placeholder="Örn: Kapalı Spor Salonu" style="border-radius: 10px;" />
                                 <span asp-validation-for="Location" class="text-danger"></span>
                             </div>
+                            <div class="col-md-3 mb-3">
+                                <label asp-for="GenderCategory" class="form-label fw-bold">Cinsiyet Kısıtlaması</label>
+                                <select asp-for="GenderCategory" class="form-select" style="border-radius: 10px;">
+                                    <option value="Karma">🌍 Karma (Herkes)</option>
+                                    <option value="Erkek">👨 Sadece Erkekler</option>
+                                    <option value="Kadın">👩 Sadece Kadınlar</option>
+                                </select>
+                                <span asp-validation-for="GenderCategory" class="text-danger"></span>
+                            </div>
                         </div>
+
 
                         <div class="mb-3">
                             <label asp-for="Description" class="form-label fw-bold">Turnuva Açıklaması</label>

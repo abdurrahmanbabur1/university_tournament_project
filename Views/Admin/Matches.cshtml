@@ -1,0 +1,85 @@
+@model IEnumerable<UniversityTournamentPro.Models.Match>
+
+@{
+    ViewData["Title"] = "Maç Yönetimi";
+    Layout = "_Layout";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-u-mavi"><i class="bi bi-calendar-event me-2 text-primary"></i>Maç Programı Yönetimi</h2>
+        <a asp-action="CreateMatch" class="btn text-white shadow-sm" style="background-color: var(--u-mavi); border-radius: 10px;">
+            <i class="bi bi-plus-circle me-2"></i>Yeni Maç Planla
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">Teleskop / Turnuva</th>
+                            <th>Takımlar</th>
+                            <th>Branş</th>
+                            <th>Tarih & Saat</th>
+                            <th>Yer</th>
+                            <th class="text-end pe-4">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted">
+                                    <i class="bi bi-calendar-x fs-1 d-block mb-3"></i>
+                                    Henüz planlanmış bir maç bulunmamaktadır.
+                                </td>
+                            </tr>
+                        }
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="fw-bold text-dark">@item.Title</div>
+                                    <small class="text-muted">@item.Tournament?.Name</small>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge bg-primary px-2 py-1">@item.TeamA</span>
+                                        <small class="text-muted fw-bold">VS</small>
+                                        <span class="badge bg-info px-2 py-1">@item.TeamB</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border rounded-pill px-3">@item.Branch</span>
+                                </td>
+                                <td>
+                                    <div class="fw-bold">@item.MatchDate.ToString("dd.MM.yyyy")</div>
+                                    <small class="text-muted"><i class="bi bi-clock me-1"></i>@item.MatchDate.ToString("HH:mm")</small>
+                                </td>
+                                <td>
+                                    <i class="bi bi-geo-alt me-1 text-danger"></i>@item.Location
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="btn-group">
+                                        @* Silme özelliği Announcements'daki gibi eklenebilir *@
+                                        <button class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                            <i class="bi bi-trash"></i> Sil
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root { --u-mavi: #262F59; }
+    .table thead th { font-size: 0.8rem; text-transform: uppercase; color: #666; padding: 15px; }
+    .rounded-4 { border-radius: 1rem !important; }
+</style>

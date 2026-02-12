@@ -20,6 +20,9 @@
         @Html.AntiForgeryToken()
         <input type="hidden" asp-for="TournamentId" />
 
+        @* Hata Mesajları *@
+        <div asp-validation-summary="All" class="text-danger mb-3 fw-bold"></div>
+
         @* --- 2. BÖLÜM: TAKIM VE SORUMLU BİLGİLERİ --- *@
         <div class="card shadow-sm border-0 mb-4 rounded-4 overflow-hidden">
             <div class="card-header bg-white py-3 border-bottom border-light">
@@ -72,7 +75,7 @@
             </div>
             <div class="card-body p-4">
                 <div class="alert alert-info border-0 shadow-sm mb-4 small">
-                    <i class="bi bi-info-circle-fill me-2"></i> Takım arkadaşlarınızın bilgilerini giriniz. (En az 1 oyuncu zorunludur)
+                    <i class="bi bi-info-circle-fill me-2"></i> Bu turnuva için <b>en az @Model.Tournament?.MinPlayerCount</b>, <b>en fazla @Model.Tournament?.MaxPlayerCount</b> oyuncu kaydetmelisiniz. (Kaptan dahil değildir)
                 </div>
 
                 <div class="table-responsive">
@@ -86,14 +89,35 @@
                                 <th style="width: 50px;"></th>
                             </tr>
                         </thead>
-                        <tbody class="border-top">
-                            <tr>
-                                <td class="fw-bold text-muted ps-3">1</td>
-                                <td><input name="PlayerNames" class="form-control border-0 bg-light shadow-none" placeholder="Oyuncu Adı" required /></td>
-                                <td><input name="PlayerNumbers" class="form-control border-0 bg-light shadow-none" placeholder="Öğrenci No" required /></td>
-                                <td><input name="PlayerJerseys" class="form-control border-0 bg-light shadow-none" placeholder="No" /></td>
-                                <td></td>
-                            </tr>
+                        <tbody class="border-top" data-min-players="@Model.Tournament?.MinPlayerCount" data-max-players="@Model.Tournament?.MaxPlayerCount">
+                            @{
+                                var pNames = ViewBag.PlayerNames as List<string> ?? new List<string>();
+                                var pNumbers = ViewBag.PlayerNumbers as List<string> ?? new List<string>();
+                                var pJerseys = ViewBag.PlayerJerseys as List<string> ?? new List<string>();
+                                int minRows = Model.Tournament?.MinPlayerCount ?? 1;
+                                int rowCount = Math.Max(minRows, pNames.Count);
+                            }
+
+                            @for (int i = 0; i < rowCount; i++)
+                            {
+                                var name = i < pNames.Count ? pNames[i] : "";
+                                var number = i < pNumbers.Count ? pNumbers[i] : "";
+                                var jersey = i < pJerseys.Count ? pJerseys[i] : "";
+                                <tr>
+                                    <td class="fw-bold text-muted ps-3 row-number">@(i + 1)</td>
+                                    <td><input name="PlayerNames" class="form-control border-0 bg-light shadow-none" value="@name" placeholder="Oyuncu Adı" required /></td>
+                                    <td><input name="PlayerNumbers" class="form-control border-0 bg-light shadow-none" value="@number" placeholder="Öğrenci No" required /></td>
+                                    <td><input name="PlayerJerseys" class="form-control border-0 bg-light shadow-none" value="@jersey" placeholder="No" /></td>
+                                    <td>
+                                        @if (i + 1 > minRows)
+                                        {
+                                            <button type="button" class="btn btn-link text-danger p-0" onclick="removeRow(this)">
+                                                <i class="bi bi-dash-circle-fill fs-5"></i>
+                                            </button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
                         </tbody>
                     </table>
                 </div>
@@ -128,9 +152,15 @@
         // --- YENİ VE AKILLI SATIR EKLEME FONKSİYONU ---
         function addRow() {
             const tableBody = document.querySelector("#playersTable tbody");
-            const row = tableBody.insertRow();
+            const maxPlayers = parseInt(tableBody.getAttribute("data-max-players") || "100");
+            const currentRows = tableBody.querySelectorAll("tr").length;
 
-            // Yeni satırın içeriği (Numara kısmı boş, aşağıda dolduracağız)
+            if (currentRows >= maxPlayers) {
+                alert("Bu turnuva için maksimum " + maxPlayers + " oyuncu ekleyebilirsiniz.");
+                return;
+            }
+
+            const row = tableBody.insertRow();
             row.innerHTML = `
                 <td class="fw-bold text-muted ps-3 row-number"></td>
                 <td><input name="PlayerNames" class="form-control border-0 bg-light shadow-none" placeholder="Oyuncu Adı" required /></td>
@@ -143,28 +173,33 @@
                 </td>
             `;
 
-            // Numaraları güncelle (1, 2, 3... diye sıraya dizer)
             updateRowNumbers();
         }
 
         // --- SATIR SİLME VE NUMARA GÜNCELLEME ---
         function removeRow(btn) {
-            // Silme efektini ekle (isteğe bağlı, daha şık durur)
+            const tableBody = document.querySelector("#playersTable tbody");
+            const minPlayers = parseInt(tableBody.getAttribute("data-min-players") || "1");
+            const currentRows = tableBody.querySelectorAll("tr").length;
+
+            if (currentRows <= minPlayers) {
+                alert("Bu turnuva için en az " + minPlayers + " oyuncu zorunludur.");
+                return;
+            }
+
             const row = btn.closest('tr');
             row.classList.add('animate__animated', 'animate__fadeOutLeft');
 
-            // Efekt bitince satırı sil ve numaraları güncelle
             setTimeout(() => {
                 row.remove();
                 updateRowNumbers();
-            }, 500); // 0.5 saniye bekle
+            }, 500); 
         }
 
         // --- TÜM SATIR NUMARALARINI YENİDEN HESAPLAYAN SİHİRLİ FONKSİYON ---
         function updateRowNumbers() {
             const rows = document.querySelectorAll("#playersTable tbody tr");
             rows.forEach((row, index) => {
-                // Her satırın numara hücresini bul ve sırasını (index + 1) yaz
                 row.querySelector('.row-number').innerText = index + 1;
             });
         }

@@ -70,6 +70,29 @@ namespace UniversityTournamentPro.Controllers
             return View(tournament);
         }
 
+        // --- BRANŞA GÖRE TURNUVALAR ---
+        public async Task<IActionResult> BranchTournaments(string branchName)
+        {
+            if (string.IsNullOrEmpty(branchName))
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            var tournaments = await _context.Tournaments
+                .Where(t => t.IsActive && t.Branch == branchName)
+                .OrderBy(t => t.StartDate)
+                .ToListAsync();
+
+            ViewBag.BranchName = branchName;
+            
+            // Branş emojisini de bulalım
+            var branch = await _context.Branches.FirstOrDefaultAsync(b => b.Name == branchName);
+            ViewBag.BranchEmoji = branch?.Emoji ?? "🏆";
+
+            return View(tournaments);
+        }
+
+
         public IActionResult Privacy()
         {
             return View();

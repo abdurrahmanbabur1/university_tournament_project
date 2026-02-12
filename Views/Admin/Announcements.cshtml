@@ -37,12 +37,25 @@
                             <td class="fw-bold">@item.Title</td>
                             <td>@item.CreatedDate.ToString("dd.MM.yyyy")</td>
                             <td class="text-end pe-4">
-                                <form asp-action="DeleteAnnouncement" method="post" onsubmit="return confirm('Bu duyuruyu silmek istediğinize emin misiniz?');">
-                                    <input type="hidden" name="id" value="@item.Id" />
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" style="border-radius: 8px;">
-                                        <i class="bi bi-trash"></i> Sil
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" style="border-radius: 8px;"
+                                            data-bs-toggle="modal" data-bs-target="#editAnnouncementModal"
+                                            data-id="@item.Id"
+                                            data-title="@item.Title"
+                                            data-content="@item.Content"
+                                            data-tournamentid="@item.TournamentId"
+                                            data-imageurl="@item.ImageUrl"
+                                            onclick="openEditModal(this)">
+                                        <i class="bi bi-pencil-square"></i> Düzenle
                                     </button>
-                                </form>
+
+                                    <form asp-action="DeleteAnnouncement" method="post" onsubmit="return confirm('Bu duyuruyu silmek istediğinize emin misiniz?');">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" style="border-radius: 8px;">
+                                            <i class="bi bi-trash"></i> Sil
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     }
@@ -61,7 +74,6 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
-            @* 🔥 İŞTE O KRİTİK KOD BURADA: enctype="multipart/form-data" *@
             <form asp-action="CreateAnnouncement" method="post" enctype="multipart/form-data">
                 <div class="modal-body">
                     <div class="mb-3">
@@ -102,3 +114,80 @@
         </div>
     </div>
 </div>
+
+@* --- DUYURU DÜZENLEME MODALI --- *@
+<div class="modal fade" id="editAnnouncementModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 20px;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="fw-bold">Duyuruyu Düzenle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form asp-action="UpdateAnnouncement" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="Id" id="editId" />
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Duyuru Başlığı</label>
+                        <input name="Title" id="editTitle" class="form-control shadow-sm" required style="border-radius: 10px;" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Duyuru İçeriği</label>
+                        <textarea name="Content" id="editContent" class="form-control shadow-sm" rows="4" required style="border-radius: 10px;"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">İlgili Turnuva (Opsiyonel)</label>
+                        <select name="TournamentId" id="editTournamentId" class="form-select shadow-sm" style="border-radius: 10px;">
+                            <option value="">-- Turnuva Seçin --</option>
+                            @if (ViewBag.Tournaments != null)
+                            {
+                                foreach (var t in (IEnumerable<UniversityTournamentPro.Models.Tournament>)ViewBag.Tournaments)
+                                {
+                                    <option value="@t.Id">@t.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-u-mavi">Yeni Görsel Seç (Opsiyonel)</label>
+                        <input type="file" name="imageFile" class="form-control shadow-sm" accept="image/*" style="border-radius: 10px;" />
+                        <div id="currentImageContainer" class="mt-2" style="display:none;">
+                            <small class="text-muted d-block">Mevcut Görsel:</small>
+                            <img id="editImageUrl" src="" class="img-thumbnail" style="max-height: 100px;" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal" style="border-radius: 10px;">Vazgeç</button>
+                    <button type="submit" class="btn btn-primary px-4" style="border-radius: 10px;">Değişiklikleri Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openEditModal(btn) {
+            const id = btn.getAttribute("data-id");
+            const title = btn.getAttribute("data-title");
+            const content = btn.getAttribute("data-content");
+            const tournamentId = btn.getAttribute("data-tournamentid");
+            const imageUrl = btn.getAttribute("data-imageurl");
+
+            document.getElementById("editId").value = id;
+            document.getElementById("editTitle").value = title;
+            document.getElementById("editContent").value = content;
+            document.getElementById("editTournamentId").value = tournamentId || "";
+
+            if (imageUrl) {
+                document.getElementById("editImageUrl").src = imageUrl;
+                document.getElementById("currentImageContainer").style.display = "block";
+            } else {
+                document.getElementById("currentImageContainer").style.display = "none";
+            }
+        }
+    </script>
+}

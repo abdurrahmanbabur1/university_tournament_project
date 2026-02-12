@@ -31,6 +31,16 @@ namespace UniversityTournamentPro.Controllers
             var tournament = await _context.Tournaments.FindAsync(id);
             if (tournament == null) return NotFound();
 
+            var user = await _userManager.GetUserAsync(User);
+            if (user != null && tournament.GenderCategory != "Karma")
+            {
+                if (user.Gender != tournament.GenderCategory)
+                {
+                    TempData["Error"] = $"Bu turnuvaya yalnızca {tournament.GenderCategory.ToLower()}ler katılabilir.";
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+
             var selection = new TournamentSelection
             {
                 TournamentId = id,
@@ -48,6 +58,16 @@ namespace UniversityTournamentPro.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return Challenge();
 
+            var tournament = await _context.Tournaments.FindAsync(selection.TournamentId);
+            if (tournament == null) return NotFound();
+
+            // Cinsiyet Kısıtlaması Kontrolü
+            if (tournament.GenderCategory != "Karma" && user.Gender != tournament.GenderCategory)
+            {
+                TempData["Error"] = $"Bu turnuvaya yalnızca {tournament.GenderCategory.ToLower()}ler katılabilir.";
+                return RedirectToAction(nameof(Index));
+            }
+
             var hasAlreadyApplied = await _context.TournamentSelections
                 .AnyAsync(s => s.UserId == user.Id && s.TournamentId == selection.TournamentId);
 
@@ -57,20 +77,32 @@ namespace UniversityTournamentPro.Controllers
                 return RedirectToAction(nameof(MyApplications));
             }
 
-            if (ModelState.IsValid)
+
+            // Oyuncuları listeye ekle
+            var players = new List<string>();
+            if (PlayerNames != null)
             {
-                var players = new List<string>();
-                if (PlayerNames != null)
+                for (int i = 0; i < PlayerNames.Count; i++)
                 {
-                    for (int i = 0; i < PlayerNames.Count; i++)
+                    if (!string.IsNullOrEmpty(PlayerNames[i]))
                     {
-                        if (!string.IsNullOrEmpty(PlayerNames[i]))
-                        {
-                            players.Add($"{PlayerNames[i]} | No:{PlayerNumbers[i]} | Forma:{PlayerJerseys[i]}");
-                        }
+                        players.Add($"{PlayerNames[i]} | No:{PlayerNumbers[i]} | Forma:{PlayerJerseys[i]}");
                     }
                 }
+            }
 
+            // Oyuncu sayısı doğrulaması
+            if (tournament != null)
+
+            {
+                if (players.Count < tournament.MinPlayerCount || players.Count > tournament.MaxPlayerCount)
+                {
+                    ModelState.AddModelError("", $"Bu turnuva için en az {tournament.MinPlayerCount}, en fazla {tournament.MaxPlayerCount} oyuncu girilmelidir.");
+                }
+            }
+
+            if (ModelState.IsValid)
+            {
                 selection.UserId = user.Id;
                 selection.Faculty = user.Faculty;
                 selection.ManagerStudentNumber = user.StudentNo;
@@ -83,11 +115,21 @@ namespace UniversityTournamentPro.Controllers
                 _context.TournamentSelections.Add(selection);
                 await _context.SaveChangesAsync();
 
-                TempData["Success"] = "Takım başvurunuz başarıyla alındı!";
+                TempData["Success"] = "Başvurunuz Onay Bekliyor";
+                
+                // Admin ise Admin Paneline, Öğrenci ise kendi başvurularına yönlendir
+                if (User.IsInRole("Admin"))
+                {
+                    return RedirectToAction("ManageTeams", "Admin");
+                }
                 return RedirectToAction(nameof(MyApplications));
             }
 
-            selection.Tournament = await _context.Tournaments.FindAsync(selection.TournamentId);
+            // Hata durumunda verileri geri gönder
+            ViewBag.PlayerNames = PlayerNames;
+            ViewBag.PlayerNumbers = PlayerNumbers;
+            ViewBag.PlayerJerseys = PlayerJerseys;
+            selection.Tournament = tournament;
             return View(selection);
         }
 
@@ -121,6 +163,18 @@ namespace UniversityTournamentPro.Controllers
             TempData["Success"] = "Başvurunuz başarıyla iptal edildi.";
             return RedirectToAction(nameof(MyApplications));
         }
+
+        // --- MAÇ PROGRAMINI LİSTELE ---
+        public async Task<IActionResult> Matches()
+        {
+            var matches = await _context.Matches
+                .Include(m => m.Tournament)
+                .OrderBy(m => m.MatchDate)
+                .ToListAsync();
+
+            return View(matches);
+        }
+
 
         // --- PROFİL VE DİĞER İŞLEMLER ---
         public async Task<IActionResult> Profile() => View(await _userManager.GetUserAsync(User));

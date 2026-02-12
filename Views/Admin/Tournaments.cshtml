@@ -31,7 +31,9 @@
                         <th>Branş</th>
                         <th>Başlangıç Tarihi</th>
                         <th>Turnuva Yeri</th>
+                        <th>Kategori</th>
                         <th>Durum</th>
+
                         <th class="text-center">İşlemler</th>
                     </tr>
                 </thead>
@@ -54,6 +56,11 @@
                             </td>
                             <td>@item.StartDate.ToShortDateString()</td>
                             <td>@item.Location</td>
+                            <td>
+                                @if (item.GenderCategory == "Erkek") { <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2">👨 Erkek</span> }
+                                else if (item.GenderCategory == "Kadın") { <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2">👩 Kadın</span> }
+                                else { <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2">🌍 Karma</span> }
+                            </td>
                             <td>
                                 <span class="badge @(item.IsActive ? "bg-success" : "bg-danger")" style="border-radius: 5px;">
                                     @(item.IsActive ? "Aktif" : "Pasif")

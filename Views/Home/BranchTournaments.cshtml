@@ -1,0 +1,89 @@
+@model IEnumerable<UniversityTournamentPro.Models.Tournament>
+
+@{
+    ViewData["Title"] =ViewBag.BranchName + " Turnuvaları";
+    Layout = "_Layout";
+}
+
+<div class="container mt-5 mb-5">
+    <div class="d-flex align-items-center mb-5">
+        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm me-3" style="width: 60px; height: 60px; font-size: 2rem;">
+            @ViewBag.BranchEmoji
+        </div>
+        <div>
+            <h2 class="fw-bold mb-0" style="color: var(--u-mavi);">@ViewBag.BranchName Turnuvaları</h2>
+            <p class="text-muted mb-0">Bu branşta düzenlenen tüm aktif etkinlikler.</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary ms-auto rounded-pill px-4">
+            <i class="bi bi-arrow-left me-2"></i>Ana Sayfaya Dön
+        </a>
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="card border-0 shadow-sm rounded-4 p-5 text-center">
+            <i class="bi bi-calendar-x display-1 text-muted mb-4"></i>
+            <h4 class="fw-bold text-dark">Şu an bu branşta aktif turnuva bulunmuyor.</h4>
+            <p class="text-muted">Lütfen daha sonra tekrar kontrol edin veya diğer branşlara göz atın.</p>
+            <div class="mt-4">
+                <a asp-action="Index" class="btn btn-primary rounded-pill px-5 py-2 fw-bold">Daha Fazla Keşfet</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var t in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden tournament-card">
+                        <div class="bg-primary p-3 text-white text-center position-relative">
+                            <span class="badge bg-white text-primary position-absolute top-0 end-0 m-3 rounded-pill shadow-sm">
+                                <i class="bi bi-people-fill me-1"></i> @t.Quota Kişi
+                            </span>
+                            <div class="display-6 mb-2">@ViewBag.BranchEmoji</div>
+                            <h5 class="fw-bold m-0 text-truncate">@t.Name</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-light rounded-circle p-2 me-3">
+                                    <i class="bi bi-calendar-event text-primary"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Başlangıç</small>
+                                    <span class="fw-bold text-dark">@t.StartDate.ToString("dd MMMM yyyy")</span>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-light rounded-circle p-2 me-3">
+                                    <i class="bi bi-geo-alt text-danger"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Konum</small>
+                                    <span class="fw-bold text-dark">@(t.Location ?? "MTÜ Kampüsü")</span>
+                                </div>
+                            </div>
+
+                            <p class="text-muted small mb-4" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                @t.Description
+                            </p>
+                            
+                            <div class="d-grid">
+                                <a asp-action="Details" asp-route-id="@t.Id" class="btn btn-primary rounded-pill fw-bold py-2 shadow-sm">
+                                    Detayları Görüntüle <i class="bi bi-arrow-right ms-2"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    .tournament-card { transition: all 0.3s ease; border: 1px solid transparent !important; }
+    .tournament-card:hover { transform: translateY(-10px); box-shadow: 0 1rem 3rem rgba(0,0,0,0.1) !important; border-color: rgba(38, 47, 89, 0.1) !important; }
+    :root { --u-mavi: #262F59; }
+</style>

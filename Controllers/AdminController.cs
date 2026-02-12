@@ -180,12 +180,73 @@ namespace UniversityTournamentPro.Controllers
             {
                 _context.Matches.Add(match);
                 await _context.SaveChangesAsync();
-                TempData["Success"] = "Maç başarıyla eklendi.";
+
+                // Takım Sorumlularına Mail Gönderimi
+                try
+                {
+                    var tournament = await _context.Tournaments.FindAsync(match.TournamentId);
+                    
+                    // Takım A Sorumlusu
+                    var selectionA = await _context.TournamentSelections
+                        .FirstOrDefaultAsync(s => s.TournamentId == match.TournamentId && s.TeamName == match.TeamA && s.Status == "Onaylandı");
+                    
+                    // Takım B Sorumlusu
+                    var selectionB = await _context.TournamentSelections
+                        .FirstOrDefaultAsync(s => s.TournamentId == match.TournamentId && s.TeamName == match.TeamB && s.Status == "Onaylandı");
+
+                    string subject = $"Yeni Maç Bildirimi: {match.Title}";
+                    string baseBody = $@"
+                        <div style='font-family: Arial, sans-serif; color: #333; line-height: 1.6;'>
+                            <h2 style='color: #262F59;'>Yeni Maç Programı Planlandı</h2>
+                            <p>Merhaba Takım Sorumlusu,</p>
+                            <p><strong>{tournament?.Name}</strong> kapsamında yeni bir maçınız planlanmıştır. Detaylar aşağıdadır:</p>
+                            <div style='background: #f8f9fa; padding: 20px; border-radius: 10px; border-left: 5px solid #262F59;'>
+                                <p><strong>Maç:</strong> {match.TeamA} vs {match.TeamB}</p>
+                                <p><strong>Branş:</strong> {match.Branch}</p>
+                                <p><strong>Tarih & Saat:</strong> {match.MatchDate.ToString("dd MMMM yyyy HH:mm")}</p>
+                                <p><strong>Yer:</strong> {match.Location}</p>
+                            </div>
+                            <p style='margin-top: 20px;'>Başarılar dileriz!</p>
+                            <br>
+                            <small style='color: #888;'>Bu mail MTÜ Turnuva Sistemi tarafından otomatik olarak gönderilmiştir.</small>
+                        </div>";
+
+                    if (selectionA != null && !string.IsNullOrEmpty(selectionA.Email))
+                    {
+                        await _emailSender.SendEmailAsync(selectionA.Email, subject, baseBody);
+                    }
+
+                    if (selectionB != null && !string.IsNullOrEmpty(selectionB.Email))
+                    {
+                        await _emailSender.SendEmailAsync(selectionB.Email, subject, baseBody);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Mail gönderimi başarısız olsa bile maç kaydı yapıldığı için hata fırlatmıyoruz, loglanabilir
+                    Console.WriteLine($"Maç bildirim maili gönderilirken hata: {ex.Message}");
+                }
+
+                TempData["Success"] = "Maç başarıyla eklendi ve takım sorumlularına bilgilendirme maili gönderildi.";
                 return RedirectToAction(nameof(Matches));
+
             }
             ViewBag.Tournaments = await _context.Tournaments.Where(t => t.IsActive).ToListAsync();
             return View(match);
         }
+
+        [HttpGet]
+        public async Task<JsonResult> GetTeamsByTournament(int tournamentId)
+        {
+            var teams = await _context.TournamentSelections
+                .Where(t => t.TournamentId == tournamentId && t.Status == "Onaylandı")
+                .Select(t => new { t.TeamName })
+                .Distinct()
+                .ToListAsync();
+
+            return Json(teams);
+        }
+
 
         // --- 6. ÖĞRENCİ YÖNETİMİ (ONAY, SİLME, DÜZENLE) ---
         public async Task<IActionResult> Students()
@@ -234,11 +295,11 @@ namespace UniversityTournamentPro.Controllers
                     }
 
                     // 3. Mail Gönder (Mail ayarları bozuksa sistemi kilitler, o yüzden try-catch içinde)
-                    try
-                    {
-                        await _emailSender.SendEmailAsync(user.Email, "MTÜ Turnuva - Onay",
-                            $"Merhaba {user.FirstName}, hesabınız onaylandı. Artık giriş yapabilirsiniz.");
-                    }
+            try
+            {
+                await _emailSender.SendEmailAsync(user.Email, "MTÜ Turnuva - Kayıt Onayı",
+                    $"Merhaba {user.FirstName} {user.LastName}, kaydınız başarılı bir şekilde oluşturuldu ve onaylandı. Artık sisteme giriş yapabilirsiniz.");
+            }
                     catch (Exception ex)
                     {
                         // Mail gitmese de admini bilgilendir ama işlemi iptal etme
@@ -332,19 +393,62 @@ namespace UniversityTournamentPro.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateApplicationStatus(int id, string status)
         {
-            var application = await _context.TournamentSelections.FindAsync(id);
+            var application = await _context.TournamentSelections
+                .Include(t => t.Student)
+                .Include(t => t.Tournament)
+                .FirstOrDefaultAsync(t => t.Id == id);
+
             if (application != null)
             {
                 application.Status = status;
                 await _context.SaveChangesAsync();
                 TempData["Success"] = $"Başvuru durumu '{status}' olarak güncellendi.";
 
+                // Onay durumunda mail gönder
+                if (status == "Onaylandı" && application.Student != null)
+                {
+                    try
+                    {
+                        var subject = "Tebrikler! Turnuva Başvurunuz Onaylandı";
+                        var body = $@"
+                            <h2>Merhaba {application.Student.FirstName} {application.Student.LastName},</h2>
+                            <p><b>{application.Tournament?.Name}</b> turnuvası için yapmış olduğunuz <b>{application.TeamName}</b> isimli takım başvurunuz onaylanmıştır.</p>
+                            <p>Turnuva detaylarını ve maç programını sitemiz üzerinden takip edebilirsiniz.</p>
+                            <br>
+                            <p>Başarılar dileriz!</p>
+                            <p><i>MTÜ Turnuva Yönetim Sistemi</i></p>";
+
+                        await _emailSender.SendEmailAsync(application.Student.Email, subject, body);
+                    }
+                    catch (Exception ex)
+                    {
+                        await LogAction("Email Hatası", $"Onay maili gönderilemedi: {ex.Message}");
+                    }
+                }
+
                 await LogAction("Başvuru Güncellendi", $"ID:{id} nolu başvuru {status} yapıldı.");
+            }
+
+            return RedirectToAction(nameof(ManageTeams));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteApplication(int id)
+        {
+            var application = await _context.TournamentSelections.FindAsync(id);
+            if (application != null)
+            {
+                _context.TournamentSelections.Remove(application);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Başvuru başarıyla silindi.";
+                await LogAction("Başvuru Silindi", $"ID:{id} nolu başvuru kaldırıldı.");
             }
             return RedirectToAction(nameof(ManageTeams));
         }
 
         [HttpPost]
+
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateTeamStatus(int teamId, bool approve)
         {
@@ -461,6 +565,41 @@ namespace UniversityTournamentPro.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateAnnouncement(Announcement announcement, IFormFile? imageFile)
+        {
+            var existing = await _context.Announcements.FindAsync(announcement.Id);
+            if (existing != null)
+            {
+                existing.Title = announcement.Title;
+                existing.Content = announcement.Content;
+                existing.TournamentId = announcement.TournamentId;
+
+                if (imageFile != null)
+                {
+                    // Eski resmi silelim (varsayılan değilse)
+                    if (!string.IsNullOrEmpty(existing.ImageUrl) && !existing.ImageUrl.Contains("default"))
+                    {
+                        var oldPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", existing.ImageUrl.TrimStart('/'));
+                        if (System.IO.File.Exists(oldPath)) System.IO.File.Delete(oldPath);
+                    }
+
+                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/announcements", fileName);
+                    using (var stream = new FileStream(filePath, FileMode.Create)) { await imageFile.CopyToAsync(stream); }
+                    existing.ImageUrl = "/images/announcements/" + fileName;
+                }
+
+                _context.Update(existing);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Duyuru başarıyla güncellendi.";
+                await LogAction("Duyuru Güncellendi", $"'{existing.Title}' güncellendi.");
+            }
+            return RedirectToAction(nameof(Announcements));
+        }
+
+        [HttpPost]
+
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteAnnouncement(int id)
         {

@@ -5,15 +5,30 @@
 }
 
 @* --- 1. DUYURULAR SLIDER --- *@
-<div id="mainSlider" class="carousel slide carousel-fade shadow-lg" data-bs-ride="carousel">
+<div id="mainSlider" class="carousel slide carousel-fade shadow-lg mb-5" data-bs-ride="carousel" style="border-radius: 20px; overflow: hidden;">
+    @* Carousel Göstergeleri *@
+    <div class="carousel-indicators">
+        @if (Model.Announcements != null && Model.Announcements.Any())
+        {
+            for (int i = 0; i < Model.Announcements.Count(); i++)
+            {
+                <button type="button" data-bs-target="#mainSlider" data-bs-slide-to="@i" class="@(i == 0 ? "active" : "")" aria-current="@(i == 0 ? "true" : "false")" aria-label="Slide @(i + 1)"></button>
+            }
+        }
+        else
+        {
+            <button type="button" data-bs-target="#mainSlider" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+        }
+    </div>
+
     <div class="carousel-inner">
         @if (Model.Announcements == null || !Model.Announcements.Any())
         {
-            <div class="carousel-item active">
-                <img src="/images/default-announcement.jpg" class="d-block w-100" alt="Hoşgeldiniz" style="height: 550px; object-fit: cover; filter: brightness(0.5);">
-                <div class="carousel-caption d-none d-md-block">
-                    <h1 class="display-3 fw-bold text-white">MTÜ TURNUVA PORTALI</h1>
-                    <p class="lead">Üniversitemizin en heyecanlı spor etkinlikleri burada!</p>
+            <div class="carousel-item active" style="height: 500px;">
+                <img src="/images/default-announcement.jpg" class="d-block w-100 h-100" alt="Hoşgeldiniz" style="object-fit: cover; object-position: center; filter: brightness(0.6);">
+                <div class="carousel-caption d-none d-md-block text-center shadow-none bg-transparent">
+                    <h1 class="display-3 fw-bold text-white mb-3">MTÜ TURNUVA PORTALI</h1>
+                    <p class="lead text-white-50">Üniversitemizin en heyecanlı spor etkinlikleri burada!</p>
                 </div>
             </div>
         }
@@ -22,35 +37,63 @@
             var isFirst = true;
             foreach (var item in Model.Announcements)
             {
-                <div class="carousel-item @(isFirst ? "active" : "")">
-                    <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "/images/default-announcement.jpg" : item.ImageUrl)" class="d-block w-100" alt="@item.Title" style="height: 550px; object-fit: cover; filter: brightness(0.5);">
-                    <div class="carousel-caption text-start px-5 pb-5 animate__animated animate__fadeIn">
-                        <span class="badge mb-3 px-3 py-2 shadow-sm" style="background-color: var(--u-turuncu); border-radius: 8px; letter-spacing: 1px;">GÜNCEL DUYURU</span>
-                        <h2 class="display-4 fw-bold text-white mb-3">@item.Title</h2>
-                        <p class="fs-5 opacity-75 mb-4 w-75 d-none d-md-block">@item.Content</p>
+                var imgUrl = string.IsNullOrEmpty(item.ImageUrl) ? "/images/default-announcement.jpg" : item.ImageUrl;
+                <div class="carousel-item @(isFirst ? "active" : "")" data-bs-interval="5000" style="height: 500px; position: relative; overflow: hidden;">
+                    <!-- Bulanık Arka Plan Katmanı -->
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+                                background-image: url('@imgUrl'); 
+                                background-size: cover; background-position: center; 
+                                filter: blur(25px) brightness(0.5); transform: scale(1.1); z-index: 1;">
+                    </div>
 
-                        @if (item.TournamentId.HasValue)
-                        {
-                            <a asp-controller="Home" asp-action="Details" asp-route-id="@item.TournamentId" class="btn btn-light btn-lg fw-bold shadow-lg py-3 px-5" style="color: var(--u-mavi); border-radius: 50px;">
-                                <i class="bi bi-info-circle-fill me-2"></i>Turnuva Detayları
+                    <!-- Ana Resim (Sığdırılmış ve Net) -->
+                    <img src="@imgUrl" class="d-block mx-auto h-100" alt="@item.Title" 
+                         style="position: relative; z-index: 2; object-fit: contain; max-width: 100%;">
+                    
+                    @* --- KÖŞEYE KÜÇÜK BUTON --- *@
+                    @if (item.TournamentId.HasValue)
+                    {
+                        <div style="position: absolute; bottom: 30px; right: 30px; z-index: 100;">
+                            <a href="/Home/Details/@item.TournamentId" 
+                               class="btn text-white shadow-lg fw-bold px-4 py-2 slider-detail-btn" 
+                               style="background-color: var(--u-mavi); border-radius: 50px; border: 2px solid rgba(255,255,255,0.5); font-size: 0.9rem; transition: all 0.3s ease;">
+                                <i class="bi bi-arrow-right-circle-fill me-2"></i> Turnuva Detayları
                             </a>
-                        }
+                        </div>
+                    }
+
+                    @* --- BAŞLIK ROZETİ --- *@
+                    <div style="position: absolute; top: 20px; left: 20px; z-index: 100;">
+                         <span class="badge bg-dark bg-opacity-50 blur-3 px-3 py-2 text-white" style="border-radius: 10px; font-size: 0.9rem;">
+                             @item.Title
+                         </span>
                     </div>
                 </div>
                 isFirst = false;
             }
+
         }
     </div>
+
+    @* Carousel Kontrolleri *@
+    <button class="carousel-control-prev" type="button" data-bs-target="#mainSlider" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon p-3 rounded-circle bg-dark bg-opacity-25" aria-hidden="true"></span>
+        <span class="visually-hidden">Geri</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#mainSlider" data-bs-slide="next">
+        <span class="carousel-control-next-icon p-3 rounded-circle bg-dark bg-opacity-25" aria-hidden="true"></span>
+        <span class="visually-hidden">İleri</span>
+    </button>
 </div>
 
 @* --- 2. DURUM PANELLERİ --- *@
-<div class="container" style="position: relative; z-index: 10; margin-top: -60px;">
+<div class="container" style="position: relative; z-index: 10; margin-top: 40px;">
     <div class="row justify-content-center g-4">
         <div class="col-md-11">
-            <div class="card shadow-lg border-0 p-4 rounded-4 bg-white" style="border-left: 10px solid var(--u-mavi) !important;">
+            <div class="card shadow-lg border-0 p-4 rounded-4 bg-white" style="border-left: 10px solid var(--u-mavi) !important; border-top: 1px solid #eee;">
                 <div class="row align-items-center">
                     <div class="col-md">
-                        <h2 class="fw-bold mb-1" style="color: var(--u-mavi);">Hoş Geldiniz!</h2>
+                        <h2 class="fw-bold mb-1" style="color: var(--u-mavi);"><i class="bi bi-stars text-warning me-2"></i>Hoş Geldiniz!</h2>
                         <p class="text-muted mb-0">Aktif turnuvaları ve maç takvimini aşağıdan inceleyebilirsiniz.</p>
                     </div>
                 </div>
@@ -76,10 +119,13 @@
                     foreach (var br in Model.Branches)
                     {
                         <div class="col-12">
-                            <div class="p-4 rounded-4 shadow-sm text-white brans-card" style="background: linear-gradient(45deg, #262F59, #3f51b5);">
-                                <h5 class="m-0 fw-bold"><span class="fs-4 me-3">@br.Emoji</span> @br.Name <i class="bi bi-chevron-right float-end"></i></h5>
-                            </div>
+                            <a asp-action="BranchTournaments" asp-route-branchName="@br.Name" class="text-decoration-none">
+                                <div class="p-4 rounded-4 shadow-sm text-white brans-card" style="background: linear-gradient(45deg, #262F59, #3f51b5);">
+                                    <h5 class="m-0 fw-bold"><span class="fs-4 me-3">@br.Emoji</span> @br.Name <i class="bi bi-chevron-right float-end"></i></h5>
+                                </div>
+                            </a>
                         </div>
+
                     }
                 }
             </div>
@@ -136,7 +182,8 @@
     .brans-card:hover { transform: translateX(10px); filter: brightness(1.1); }
     #calendar { border: none !important; }
     .fc-header-toolbar { margin-bottom: 1.5rem !important; }
-    .carousel-caption { background: rgba(0,0,0,0.3); border-radius: 20px; padding: 30px !important; backdrop-filter: blur(5px); }
+    .blur-3 { backdrop-filter: blur(3px); }
+    .slider-detail-btn:hover { background-color: var(--u-turuncu) !important; transform: scale(1.05); color: white !important; }
 </style>
 
 @section Scripts {
@@ -199,10 +246,10 @@
                 ],
                 eventClick: function(info) {
                     var props = info.event.extendedProps;
-                    document.getElementById('mt-name').innerText = props.tournamentName;
+                    document.getElementById('mt-name').innerHTML = props.tournamentName;
                     document.getElementById('mt-branch').innerText = props.branch;
                     document.getElementById('mt-date').innerText = props.dateStr;
-                    document.getElementById('mt-description').innerText = props.description;
+                    document.getElementById('mt-description').innerHTML = props.description;
                     document.getElementById('mt-quota').innerText = props.quota;
                     document.getElementById('mt-location').innerText = props.location;
                     document.getElementById('mt-details-link').href = '/Home/Details/' + props.tournamentId;
