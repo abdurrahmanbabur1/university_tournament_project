@@ -1,0 +1,239 @@
+﻿@model UniversityTournamentPro.Models.HomeViewModel
+
+@{
+    ViewData["Title"] = "MTÜ Turnuva Platformu";
+}
+
+@* --- 1. DUYURULAR SLIDER (Görsel ve Yönlendirme Alanı) --- *@
+<div id="mainSlider" class="carousel slide carousel-fade shadow-lg" data-bs-ride="carousel">
+    <div class="carousel-inner">
+        @if (Model.Announcements == null || !Model.Announcements.Any())
+        {
+            <div class="carousel-item active">
+                <img src="~/images/default-announcement.jpg" class="d-block w-100" alt="Hoşgeldiniz" style="height: 550px; object-fit: cover; filter: brightness(0.5);">
+                <div class="carousel-caption d-none d-md-block">
+                    <h1 class="display-3 fw-bold text-white">MTÜ TURNUVA PORTALI</h1>
+                    <p class="lead">Üniversitemizin en heyecanlı spor etkinlikleri burada!</p>
+                </div>
+            </div>
+        }
+        else
+        {
+            var isFirst = true;
+            foreach (var item in Model.Announcements)
+            {
+                <div class="carousel-item @(isFirst ? "active" : "")">
+                    <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "/images/default-announcement.jpg" : item.ImageUrl)" class="d-block w-100" alt="@item.Title" style="height: 550px; object-fit: cover; filter: brightness(0.5);">
+                    <div class="carousel-caption text-start px-5 pb-5 animate__animated animate__fadeIn">
+                        <span class="badge mb-3 px-3 py-2 shadow-sm" style="background-color: var(--u-turuncu); border-radius: 8px; letter-spacing: 1px;">GÜNCEL DUYURU</span>
+                        <h2 class="display-4 fw-bold text-white mb-3">@item.Title</h2>
+                        <p class="fs-5 opacity-75 mb-4 w-75 d-none d-md-block">@item.Content</p>
+
+                        @* --- KRİTİK NOKTA: TURNUVA DETAYLARI BUTONU --- *@
+                        @if (item.TournamentId.HasValue)
+                        {
+                            <a asp-controller="Home"
+                               asp-action="Details"
+                               asp-route-id="@item.TournamentId"
+                               class="btn btn-light btn-lg fw-bold shadow-lg py-3 px-5 animate__animated animate__zoomIn animate__delay-1s"
+                               style="color: var(--u-mavi); border-radius: 50px;">
+                                <i class="bi bi-info-circle-fill me-2"></i>Turnuva Detayları
+                            </a>
+                        }
+                        else
+                        {
+                            @* Turnuva ID'si girilmemişse bile metin aynı kalsın ama hata vermesin *@
+                            <button class="btn btn-outline-light btn-lg fw-bold py-3 px-5" disabled>
+                                <i class="bi bi-info-circle me-2"></i>Turnuva Detayları (Yakında)
+                            </button>
+                        }
+                    </div>
+                </div>
+                isFirst = false;
+            }
+        }
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#mainSlider" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#mainSlider" data-bs-slide="next">
+        <span class="carousel-control-next-icon"></span>
+    </button>
+</div>
+
+@* --- 2. HIZLI ERİŞİM VE DURUM PANELLERİ --- *@
+<div class="container" style="position: relative; z-index: 10; margin-top: -60px;">
+
+    @* --- ADMIN ÖZEL PANELİ --- *@
+    @if (User.IsInRole("Admin") && Model.PendingUserCount > 0)
+    {
+        <div class="row justify-content-center mb-5">
+            <div class="col-md-11">
+                <div class="alert alert-danger shadow-lg border-0 d-flex align-items-center p-4 animate__animated animate__headShake" role="alert" style="border-radius: 20px; background: linear-gradient(135deg, #ff4d4d, #dc3545); color: white;">
+                    <i class="bi bi-person-exclamation fs-1 me-4"></i>
+                    <div class="flex-grow-1">
+                        <h4 class="fw-bold mb-1">Onayınızı Bekleyen @Model.PendingUserCount Öğrenci Var!</h4>
+                        <p class="mb-0 opacity-90 small">Turnuva başvurularının aksamaması için üyeleri hemen onaylayın.</p>
+                    </div>
+                    <a asp-controller="Admin" asp-action="Students" class="btn btn-light rounded-pill px-4 fw-bold shadow-sm py-2" style="color: #dc3545;">
+                        ŞİMDİ ONAYLA
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="row justify-content-center g-4">
+        @if (!User.Identity.IsAuthenticated)
+        {
+            @* --- GİRİŞ YAPMAMIŞ KULLANICI KARTLARI --- *@
+            <div class="col-md-6">
+                <div class="card shadow-lg p-4 h-100 border-0 rounded-4 transition-hover">
+                    <div class="card-body text-center">
+                        <div class="mb-3 text-primary"><i class="bi bi-mortarboard-fill display-3"></i></div>
+                        <h3 class="fw-bold" style="color: var(--u-mavi);">Öğrenci Girişi</h3>
+                        <p class="text-muted small">Turnuvaları incelemek ve takımını kurmak için giriş yap.</p>
+                        <a href="/Identity/Account/Login" class="btn btn-primary w-100 py-3 fw-bold rounded-pill mt-3 shadow-sm">Sisteme Giriş Yap</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="card shadow-lg p-4 h-100 border-0 rounded-4 bg-white">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-4 border-bottom pb-2" style="color: var(--u-mavi);"><i class="bi bi-lightning-fill me-2 text-warning"></i>Hızlı Katılım</h5>
+                        <div class="d-flex mb-3 align-items-start">
+                            <span class="badge bg-primary rounded-circle me-3 mt-1">1</span>
+                            <p class="small text-muted mb-0">Öğrenci hesabınla kayıt ol ve admin onayını bekle.</p>
+                        </div>
+                        <div class="d-flex mb-3 align-items-start">
+                            <span class="badge bg-primary rounded-circle me-3 mt-1">2</span>
+                            <p class="small text-muted mb-0">Profilini tamamla ve turnuva detaylarını incele.</p>
+                        </div>
+                        <div class="d-flex align-items-start">
+                            <span class="badge bg-primary rounded-circle me-3 mt-1">3</span>
+                            <p class="small text-muted mb-0">Branşını seç, takımını kur ve başvurunu tamamla!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            @* --- GİRİŞ YAPMIŞ KULLANICI KARTI --- *@
+            <div class="col-md-11">
+                <div class="card shadow-lg border-0 p-4 rounded-4 bg-white" style="border-left: 10px solid var(--u-mavi) !important;">
+                    <div class="row align-items-center text-center text-md-start">
+                        <div class="col-md-auto mb-3 mb-md-0">
+                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center shadow-sm" style="width: 80px; height: 80px;">
+                                <i class="bi bi-check-circle-fill fs-1" style="color: #28a745;"></i>
+                            </div>
+                        </div>
+                        <div class="col-md">
+                            <h2 class="fw-bold mb-1" style="color: var(--u-mavi);">Tekrar Hoş Geldin!</h2>
+                            <p class="text-muted mb-0">Aktif bir turnuvaya katılmak için aşağıdaki takvimi veya duyuruları incele.</p>
+                        </div>
+                        <div class="col-md-auto mt-3 mt-md-0">
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <a asp-controller="Admin" asp-action="Dashboard" class="btn btn-primary btn-lg rounded-pill px-5 fw-bold shadow">ADMİN PANELİ</a>
+                            }
+                            else
+                            {
+                                <a asp-controller="Student" asp-action="Index" class="btn btn-primary btn-lg rounded-pill px-5 fw-bold shadow">TURNUVA ARA</a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@* --- 3. TAKVİM VE BRANŞLAR (Bilgi Bölümü) --- *@
+<div class="container mt-5 py-5">
+    <div class="row g-5">
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                <h4 class="fw-bold mb-4" style="color: var(--u-mavi);"><i class="bi bi-calendar-check-fill me-3 text-primary"></i>Müsabaka Takvimi</h4>
+                <div id="calendar"></div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <h4 class="fw-bold mb-4" style="color: var(--u-mavi);"><i class="bi bi-trophy-fill me-3 text-warning"></i>Aktif Branşlar</h4>
+            <div class="row g-3">
+                @{
+                    var branches = new[] {
+                                new { Name = "Basketbol", Color = "linear-gradient(45deg, #262F59, #3f51b5)", Icon = "bi-basketball" },
+                                new { Name = "Futbol Ligi", Color = "linear-gradient(45deg, #11998e, #38ef7d)", Icon = "bi-soccer-ball" },
+                                new { Name = "Voleybol", Color = "linear-gradient(45deg, #f2994a, #f2c94c)", Icon = "bi-person-arms-up" }
+                                };
+                }
+                @foreach (var br in branches)
+                {
+                    <div class="col-12">
+                        <div class="p-4 rounded-4 shadow-sm text-white brans-card" style="background: @br.Color;">
+                            <h5 class="m-0 fw-bold"><i class="bi @br.Icon me-3"></i>@br.Name <i class="bi bi-chevron-right float-end"></i></h5>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .brans-card {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+        .brans-card:hover {
+            transform: translateX(10px);
+            filter: brightness(1.1);
+        }
+
+    .transition-hover {
+        transition: transform 0.3s;
+    }
+
+        .transition-hover:hover {
+            transform: translateY(-5px);
+        }
+
+    #calendar {
+        border: none !important;
+    }
+
+    .fc-header-toolbar {
+        margin-bottom: 1.5rem !important;
+    }
+
+    .carousel-caption {
+        background: rgba(0,0,0,0.3);
+        border-radius: 20px;
+        padding: 30px !important;
+        backdrop-filter: blur(5px);
+    }
+</style>
+
+@section Scripts {
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'tr',
+                headerToolbar: { left: 'prev', center: 'title', right: 'next' },
+                themeSystem: 'bootstrap5',
+                events: [
+                    @foreach (var m in Model.Matches)
+                    {
+                            <text>{ title: '@m.Title', start: '@m.MatchDate.ToString("yyyy-MM-ddTHH:mm:ss")', backgroundColor: '#262F59', borderColor: '#262F59' },</text>
+                    }
+                ]
+            });
+            calendar.render();
+        });
+    </script>
+}

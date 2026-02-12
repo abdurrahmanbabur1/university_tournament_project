@@ -1,0 +1,51 @@
+﻿@model IEnumerable<UniversityTournamentPro.Models.Branch>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white fw-bold">Aktif Branşlar</div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Emoji</th>
+                                <th>Branş Adı</th>
+                                <th>İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.Emoji</td>
+                                    <td>@item.Name</td>
+                                    <td><button class="btn btn-sm btn-outline-danger">Sil</button></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 bg-light">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">Yeni Branş Ekle</h6>
+                    <form asp-action="CreateBranch" method="post">
+                        <div class="mb-3">
+                            <label class="small fw-bold">Branş Adı</label>
+                            <input name="Name" class="form-control" placeholder="Örn: E-Spor" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="small fw-bold">Emoji</label>
+                            <input name="Emoji" class="form-control" placeholder="Örn: 🎮" required />
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Ekle</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

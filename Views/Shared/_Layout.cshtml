@@ -1,0 +1,158 @@
+﻿@using UniversityTournamentPro.Data
+@inject ApplicationDbContext _context
+@{
+    var settings = _context.SiteSettings.FirstOrDefault() ?? new UniversityTournamentPro.Models.SiteSetting();
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Malatya Turgut Özal Üniversitesi</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom shadow-sm">
+            <div class="container-fluid px-4">
+                <a class="navbar-brand d-flex align-items-center text-white" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="~/images/AMBLEM.png" alt="Amblem" class="nav-logo me-2 shadow-sm" />
+                    <span class="fw-bold">MTÜ Turnuva Sistemi</span>
+                </a>
+
+                <button class="navbar-toggler border-white text-white" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
+                    <i class="bi bi-list fs-3"></i>
+                </button>
+
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1 ms-lg-3">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-house-door me-1"></i> Ana Sayfa
+                            </a>
+                        </li>
+
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            if (User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item border-start border-white border-opacity-25 ms-lg-2 ps-lg-2">
+                                    <a class="nav-link" asp-controller="Admin" asp-action="Dashboard">Gösterge Paneli</a>
+                                </li>
+                                <li class="nav-item"><a class="nav-link" asp-controller="Admin" asp-action="Tournaments">Turnuvalar</a></li>
+                                <li class="nav-item"><a class="nav-link" asp-controller="Admin" asp-action="ManageTeams">Takım Başvuruları</a></li>
+                                <li class="nav-item"><a class="nav-link" asp-controller="Admin" asp-action="Students">Kullanıcılar</a></li>
+                                <li class="nav-item"><a class="nav-link" asp-controller="Admin" asp-action="Announcements">Duyurular</a></li>
+                                <li class="nav-item"><a class="nav-link text-warning" asp-controller="Admin" asp-action="ManageSettings"><i class="bi bi-gear-fill"></i> Site Ayarları</a></li>
+                            }
+                            else
+                            {
+                                <li class="nav-item border-start border-white border-opacity-25 ms-lg-2 ps-lg-2">
+                                    <a class="nav-link" asp-controller="Student" asp-action="Index"><i class="bi bi-search me-1"></i> Turnuva Bul</a>
+                                </li>
+                                <li class="nav-item"><a class="nav-link" asp-controller="Student" asp-action="MyApplications">Başvurularım</a></li>
+                                <li class="nav-item"><a class="nav-link" asp-controller="Student" asp-action="Profile">Profilim</a></li>
+                            }
+                        }
+
+                        @* --- YÖNETİCİ GİRİŞİ KISAYOLU (Sadece giriş yapılmamışsa görünür) --- *@
+                        @if (!User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-white-50 small opacity-75" href="/Identity/Account/Login?role=admin" title="Yönetici Girişi">
+                                    <i class="bi bi-shield-lock me-1"></i> Yönetici
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                    <partial name="_LoginPartial" />
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main role="main" class="pb-5">
+        <div class="container mt-4">
+            @if (ViewData["Title"]?.ToString() != "Home Page" && ViewData["Title"]?.ToString() != "MTÜ Turnuva Platformu")
+            {
+                <nav aria-label="breadcrumb" class="breadcrumb-wrapper">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Ana Sayfa</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+                    </ol>
+                </nav>
+            }
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 mb-4" role="alert" style="border-left: 5px solid #198754 !important;">
+                    <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0 mb-4" role="alert" style="border-left: 5px solid #dc3545 !important;">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            @RenderBody()
+        </div>
+    </main>
+
+    @* --- KURUMSAL FOOTER --- *@
+    <footer class="main-footer" style="background-color: #f8f9fa; border-top: 3px solid #262F59;">
+        <div class="container py-4">
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <img src="~/images/DAİRESELLOGO.png" alt="MTÜ Logo" class="mb-3 rounded-circle bg-white p-1 shadow-sm" style="height: 70px;">
+                    <h5 style="color: #262F59 !important; font-weight: 700;" class="mb-3">@settings.UniversityName</h5>
+                    <p class="small" style="color: #262F59 !important; opacity: 0.8;">Sağlık, Kültür ve Spor Daire Başkanlığı (SKS) Turnuva Yönetim Sistemi.</p>
+                </div>
+                <div class="col-lg-2 offset-lg-1">
+                    <h6 class="footer-title" style="color: #262F59 !important; border-bottom: 2px solid #262F59; display: inline-block; padding-bottom: 5px;">Hızlı Bağlantılar</h6>
+                    <a href="/" class="footer-link d-block mt-2" style="color: #262F59; text-decoration: none;">Ana Sayfa</a>
+                    <a href="/Student/Index" class="footer-link d-block mt-1" style="color: #262F59; text-decoration: none;">Turnuvalar</a>
+                    <a href="/Home/Privacy" class="footer-link d-block mt-1" style="color: #262F59; text-decoration: none;">Gizlilik Politikası</a>
+                </div>
+                <div class="col-lg-2">
+                    <h6 class="footer-title" style="color: #262F59 !important; border-bottom: 2px solid #262F59; display: inline-block; padding-bottom: 5px;">SKS İletişim</h6>
+                    <p class="small mt-2 mb-1" style="color: #262F59 !important;"><i class="bi bi-geo-alt me-2"></i>@(string.IsNullOrEmpty(settings.SksAddress) ? "Adres Girilmemiş" : settings.SksAddress)</p>
+                    <p class="small mb-1" style="color: #262F59 !important;"><i class="bi bi-telephone me-2"></i>@(string.IsNullOrEmpty(settings.SksPhone) ? "Telefon Girilmemiş" : settings.SksPhone)</p>
+                    <p class="small" style="color: #262F59 !important;"><i class="bi bi-envelope me-2"></i>@settings.SksEmail</p>
+                </div>
+                <div class="col-lg-3 text-lg-end">
+                    <h6 class="footer-title" style="color: #262F59 !important; border-bottom: 2px solid #262F59; display: inline-block; padding-bottom: 5px;">Bizi Takip Edin</h6>
+                    <div class="d-flex justify-content-lg-end mt-3">
+                        <a href="@settings.FacebookUrl" target="_blank" class="social-icon" style="color: #262F59; font-size: 1.5rem; margin-left: 15px;"><i class="bi bi-facebook"></i></a>
+                        <a href="@settings.TwitterUrl" target="_blank" class="social-icon" style="color: #262F59; font-size: 1.5rem; margin-left: 15px;"><i class="bi bi-twitter-x"></i></a>
+                        <a href="@settings.InstagramUrl" target="_blank" class="social-icon" style="color: #262F59; font-size: 1.5rem; margin-left: 15px;"><i class="bi bi-instagram"></i></a>
+                        <a href="@settings.YoutubeUrl" target="_blank" class="social-icon" style="color: #262F59; font-size: 1.5rem; margin-left: 15px;"><i class="bi bi-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom py-3" style="background-color: #262F59;">
+            <div class="container text-center">
+                <p class="m-0 text-white opacity-75 small">&copy; @DateTime.Now.Year - @settings.UniversityName</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,46 @@
+﻿@{
+    ViewData["Title"] = "Turnuva Takvimi";
+}
+
+<div id="calendar" style="background: white; padding: 20px; border-radius: 10px;"></div>
+
+<div class="modal fade" id="turnuvaDetayModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="baslikYeri">Turnuva Detayı</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Tarih:</strong> <span id="tarihYeri"></span></p>
+                <p><strong>Açıklama:</strong> <span id="aciklamaYeri"></span></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var takvimKutusu = document.getElementById('calendar');
+            var takvim = new FullCalendar.Calendar(takvimKutusu, {
+                initialView: 'dayGridMonth',
+                locale: 'tr', // Türkçe yaptık
+                events: '/Admin/GetTournamentsForCalendar', // Senin yazdığın metoda gidiyor
+                eventClick: function(bilgi) {
+                    // Kupa sembolüne tıklandığında bilgileri kutuya doldur:
+                    document.getElementById('baslikYeri').innerText = bilgi.event.title;
+                    document.getElementById('tarihYeri').innerText = bilgi.event.start.toLocaleDateString('tr-TR');
+                    document.getElementById('aciklamaYeri').innerText = bilgi.event.extendedProps.description || "Açıklama yok";
+
+                    // Kutuyu (modalı) aç:
+                    var modal = new bootstrap.Modal(document.getElementById('turnuvaDetayModal'));
+                    modal.show();
+                }
+            });
+            takvim.render();
+        });
+    </script>
+}

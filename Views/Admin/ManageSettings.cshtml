@@ -1,0 +1,62 @@
+﻿@model UniversityTournamentPro.Models.SiteSetting
+
+<div class="container mt-4">
+    <div class="card shadow-sm border-0" style="border-radius: 15px;">
+        <div class="card-header bg-primary text-white py-3">
+            <h5 class="fw-bold m-0"><i class="bi bi-gear-fill me-2"></i>SKS ve Kurumsal Bilgileri Düzenle</h5>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="ManageSettings" method="post">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <h6 class="fw-bold text-primary mb-3"><i class="bi bi-geo-alt me-2"></i>İletişim Bilgileri</h6>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Üniversite Adı</label>
+                            <input asp-for="UniversityName" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">SKS Ofis Adresi</label>
+                            <textarea asp-for="SksAddress" class="form-control" rows="2"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                                <label class="form-label small fw-bold">Telefon</label>
+                                <input asp-for="SksPhone" class="form-control" />
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-bold">E-Posta</label>
+                                <input asp-for="SksEmail" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h6 class="fw-bold text-primary mb-3"><i class="bi bi-share me-2"></i>Sosyal Medya Linkleri</h6>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text bg-light text-danger"><i class="bi bi-instagram"></i></span>
+                            <input asp-for="InstagramUrl" class="form-control" placeholder="Instagram Linki" />
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text bg-light text-dark"><i class="bi bi-twitter-x"></i></span>
+                            <input asp-for="TwitterUrl" class="form-control" placeholder="X (Twitter) Linki" />
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text bg-light text-primary"><i class="bi bi-facebook"></i></span>
+                            <input asp-for="FacebookUrl" class="form-control" placeholder="Facebook Linki" />
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text bg-light text-danger"><i class="bi bi-youtube"></i></span>
+                            <input asp-for="YoutubeUrl" class="form-control" placeholder="Youtube Linki" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-end mt-4">
+                    <button type="submit" class="btn btn-success px-5 fw-bold shadow-sm">
+                        <i class="bi bi-save me-2"></i> Bilgileri Kaydet ve Yayına Al
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

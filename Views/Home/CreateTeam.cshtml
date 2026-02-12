@@ -1,0 +1,113 @@
+﻿@model UniversityTournamentPro.Models.Team
+
+<div class="container mt-5">
+    @* --- MAVİ HEADER --- *@
+    <div class="text-center text-white py-4 mb-4" style="background-color: #003366; border-radius: 10px;">
+        <h2 class="fw-bold">@ViewBag.TournamentName Başvuru Formu</h2>
+        <p class="opacity-75">Lütfen takım ve oyuncu bilgilerini eksiksiz doldurunuz.</p>
+    </div>
+
+    <form asp-action="ApplyTeam" method="post">
+        @* --- TAKIM VE SORUMLU BİLGİLERİ --- *@
+        <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-4 text-primary"><i class="bi bi-person-badge me-2"></i>Takım ve Sorumlu Bilgileri</h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Takım Adı *</label>
+                        <input asp-for="Name" class="form-control" placeholder="Örn: Mühendislik Gücü" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Fakülte/Bölüm *</label>
+                        <select asp-for="FacultyDepartment" class="form-select" required>
+                            <option value="">Seçiniz...</option>
+                            <option value="Mühendislik">Mühendislik Fakültesi</option>
+                            <option value="İİBF">İktisadi ve İdari Bilimler Fakültesi</option>
+                            @* Diğer bölümler... *@
+                        </select>
+                    </div>
+                    @* Kaptan Bilgileri *@
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Kaptan Adı Soyadı *</label>
+                        <input asp-for="CaptainFullName" class="form-control" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Öğrenci Numarası *</label>
+                        <input asp-for="CaptainStudentNumber" class="form-control" required />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* --- OYUNCU LİSTESİ --- *@
+        <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold m-0 text-primary"><i class="bi bi-people me-2"></i>Oyuncu Listesi</h5>
+                    <button type="button" id="addRow" class="btn btn-outline-primary btn-sm"><i class="bi bi-plus-circle me-1"></i>Oyuncu Ekle</button>
+                </div>
+
+                <table class="table table-borderless align-middle" id="playersTable">
+                    <thead class="text-muted small">
+                        <tr>
+                            <th style="width: 50px;">#</th>
+                            <th>AD SOYAD</th>
+                            <th>ÖĞRENCİ NO</th>
+                            <th>FORMA NO</th>
+                            <th style="width: 50px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @* İlk satır (Kaptan) *@
+                        <tr>
+                            <td>1</td>
+                            <td><input name="Members[0].FullName" class="form-control" placeholder="Ad Soyad" required /></td>
+                            <td><input name="Members[0].StudentNumber" class="form-control" placeholder="Öğrenci No" required /></td>
+                            <td><input name="Members[0].JerseyNumber" class="form-control" placeholder="No" required /></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        @* --- ONAY VE BUTONLAR --- *@
+        <div class="mt-4 text-center">
+            <div class="form-check d-inline-block mb-3">
+                <input class="form-check-input" type="checkbox" required id="rulesCheck">
+                <label class="form-check-label small" for="rulesCheck">
+                    Turnuva Kurallarını okudum, takımım adına tüm sorumluluğu kabul ediyorum.
+                </label>
+            </div>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="#" class="btn btn-light px-5">İptal</a>
+                <button type="submit" class="btn btn-primary px-5 fw-bold" style="background-color: #003366;">BAŞVURUYU TAMAMLA</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        let rowCount = 1;
+        document.getElementById('addRow').addEventListener('click', function() {
+            let table = document.getElementById('playersTable').getElementsByTagName('tbody')[0];
+            let newRow = table.insertRow();
+            newRow.innerHTML = `
+                <td>${rowCount + 1}</td>
+                <td><input name="Members[${rowCount}].FullName" class="form-control" placeholder="Ad Soyad" /></td>
+                <td><input name="Members[${rowCount}].StudentNumber" class="form-control" placeholder="Öğrenci No" /></td>
+                <td><input name="Members[${rowCount}].JerseyNumber" class="form-control" placeholder="No" /></td>
+                <td><button type="button" class="btn btn-sm btn-link text-danger removeRow"><i class="bi bi-x-lg"></i></button></td>
+            `;
+            rowCount++;
+        });
+
+        // Satır silme işlemi için event delegation
+        document.addEventListener('click', function(e){
+            if(e.target && e.target.closest('.removeRow')){
+                e.target.closest('tr').remove();
+            }
+        });
+    </script>
+}

@@ -1,0 +1,123 @@
+/* --- 1. DEÐÝÞKENLER (MTÜ Kurumsal) --- */
+:root {
+    --u-mavi: #262F59;
+    --u-turkuaz: #12A7CD;
+    --u-gold: #B99C71;
+    --u-turuncu: #EF7F1A;
+    --u-light: #f4f7f6;
+    --u-white: #ffffff;
+}
+
+/* --- 2. TEMEL YAPILANDIRMA --- */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--u-light);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+}
+
+/* --- 3. NAVBAR & LOGO --- */
+.navbar {
+    background-color: var(--u-mavi) !important;
+    padding: 0.6rem 1rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.nav-logo {
+    height: 45px !important;
+    width: auto !important;
+    border-radius: 5px;
+    background: white;
+    padding: 3px;
+}
+
+.nav-link:hover {
+    color: var(--u-turkuaz) !important;
+}
+
+/* --- 4. ANA SAYFA SLIDER (Turkuaz Tasarým) --- */
+.carousel-item img {
+    height: 500px;
+    object-fit: cover;
+    filter: brightness(0.65);
+    border-radius: 0 0 40px 40px;
+}
+
+.carousel-caption {
+    background: rgba(18, 167, 205, 0.75) !important; /* Turkuaz Þeffaf */
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 2.5rem;
+    bottom: 15%;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* --- 5. ANA SAYFA PORTAL KARTLARI --- */
+.mt-minus-10 {
+    margin-top: -80px;
+    position: relative;
+    z-index: 1000;
+}
+
+.portal-card {
+    transition: 0.3s;
+    border: none !important;
+    border-radius: 20px !important;
+    background: var(--u-white);
+}
+
+    .portal-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 1rem 3rem rgba(38, 47, 89, 0.2) !important;
+    }
+
+.staff-portal-blue {
+    background-color: var(--u-mavi) !important;
+    color: white !important;
+}
+
+/* --- 6. GÝRÝÞ EKRANI (LOGIN) ÖZEL DÜZENLEME --- */
+
+/* Kýrmýzý Alan: Eski dev logoyu gizle */
+.login-logo-container {
+    display: none !important;
+}
+
+/* Yeþil Alan: Baþlýk ve Dinamik Ýkonu Sað Üste Sabitle */
+.login-header-right {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    z-index: 5;
+}
+
+/* Admin/Öðrenci Dinamik Ýkonu */
+.header-icon-dynamic {
+    font-size: 2.8rem;
+    color: var(--u-turkuaz);
+    margin-bottom: 5px;
+    text-shadow: 0 2px 10px rgba(18, 167, 205, 0.2);
+}
+
+/* Form Kartýnýn Üst Boþluðu */
+.login-card-body {
+    padding-top: 100px !important;
+}
+
+/* --- 7. TAKVÝM --- */
+#calendar {
+    background: var(--u-white);
+    padding: 20px;
+    border-radius: 20px;
+    border: none !important;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}

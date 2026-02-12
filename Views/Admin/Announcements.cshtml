@@ -1,0 +1,90 @@
+﻿@model IEnumerable<UniversityTournamentPro.Models.Announcement>
+
+@{
+    ViewData["Title"] = "Duyuru Yönetimi";
+    Layout = "_Layout";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold"><i class="bi bi-megaphone me-2"></i> Duyuru Yönetimi</h2>
+        @* Modal'ı açan buton *@
+        <button type="button" class="btn text-white shadow-sm" style="background-color: var(--u-mavi); border-radius: 10px;" data-bs-toggle="modal" data-bs-target="#addAnnouncementModal">
+            <i class="bi bi-plus-circle me-2"></i>Yeni Duyuru Ekle
+        </button>
+    </div>
+
+    @* --- DUYURU LİSTESİ TABLOSU --- *@
+    <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Görsel</th>
+                        <th>Başlık</th>
+                        <th>Tarih</th>
+                        <th class="text-end pe-4">İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="ps-4">
+                                <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "/images/default-duyuru.jpg" : item.ImageUrl)"
+                                     class="rounded" style="width: 60px; height: 40px; object-fit: cover;" />
+                            </td>
+                            <td class="fw-bold">@item.Title</td>
+                            <td>@item.CreatedDate.ToString("dd.MM.yyyy")</td>
+                            <td class="text-end pe-4">
+                                <form asp-action="DeleteAnnouncement" method="post" onsubmit="return confirm('Bu duyuruyu silmek istediğinize emin misiniz?');">
+                                    <input type="hidden" name="id" value="@item.Id" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" style="border-radius: 8px;">
+                                        <i class="bi bi-trash"></i> Sil
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@* --- YENİ DUYURU EKLEME MODALI --- *@
+<div class="modal fade" id="addAnnouncementModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 20px;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="fw-bold">Yeni Duyuru Oluştur</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            @* 🔥 İŞTE O KRİTİK KOD BURADA: enctype="multipart/form-data" *@
+            <form asp-action="CreateAnnouncement" method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Duyuru Başlığı</label>
+                        <input name="Title" class="form-control shadow-sm" placeholder="Başlık girin..." required style="border-radius: 10px;" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Duyuru İçeriği</label>
+                        <textarea name="Content" class="form-control shadow-sm" rows="4" placeholder="Duyuru detaylarını yazın..." required style="border-radius: 10px;"></textarea>
+                    </div>
+
+                    @* DOSYA YÜKLEME ALANI *@
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-u-mavi">Duyuru Görseli Seç</label>
+                        <input type="file" name="imageFile" class="form-control shadow-sm" accept="image/*" required style="border-radius: 10px;" />
+                        <small class="text-muted">Lütfen yatay bir görsel seçiniz.</small>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal" style="border-radius: 10px;">Vazgeç</button>
+                    <button type="submit" class="btn text-white px-4" style="background-color: var(--u-mavi); border-radius: 10px;">Yayınla</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

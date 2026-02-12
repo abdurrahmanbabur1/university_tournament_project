@@ -1,0 +1,83 @@
+﻿@model UniversityTournamentPro.Models.Tournament
+
+@{
+    ViewData["Title"] = "Yeni Turnuva Oluştur";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0" style="border-radius: 20px; overflow: hidden;">
+                <div class="card-header text-white" style="background-color: var(--u-mavi);">
+                    <h4 class="mb-0 py-2 text-center"><i class="bi bi-trophy-fill me-2 text-warning"></i>Yeni Turnuva Kaydı</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="CreateTournament" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label fw-bold">Turnuva Adı</label>
+                            <input asp-for="Name" class="form-control form-control-lg" placeholder="Örn: Rektörlük Kupası Futbol Turnuvası" style="border-radius: 12px;" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="Branch" class="form-label fw-bold">Spor Branşı</label>
+                                @* 🔥 DİNAMİK BRANŞ SEÇİMİ BURADA *@
+                                <select asp-for="Branch" class="form-select" style="border-radius: 10px;">
+                                    <option value="">Seçiniz...</option>
+                                    @if (ViewBag.Branches != null)
+                                    {
+                                        foreach (var b in (List<UniversityTournamentPro.Models.Branch>)ViewBag.Branches)
+                                        {
+                                            <option value="@b.Name">@b.Emoji @b.Name</option>
+                                        }
+                                    }
+                                </select>
+                                <span asp-validation-for="Branch" class="text-danger"></span>
+                                <div class="mt-1">
+                                    <a asp-action="ManageBranches" class="small text-decoration-none"><i class="bi bi-plus-circle me-1"></i>Yeni Branş Ekle</a>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="StartDate" class="form-label fw-bold">Başlangıç Tarihi</label>
+                                <input asp-for="StartDate" class="form-control" type="date" style="border-radius: 10px;" />
+                                <span asp-validation-for="StartDate" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="Quota" class="form-label fw-bold">Kontenjan (Takım)</label>
+                                <input asp-for="Quota" type="number" class="form-control" placeholder="Örn: 16" min="1" style="border-radius: 10px;" />
+                                <span asp-validation-for="Quota" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label fw-bold">Turnuva Açıklaması</label>
+                            <textarea asp-for="Description" class="form-control" rows="4" placeholder="Turnuva kuralları, katılım şartları vb..." style="border-radius: 12px;"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4 form-check form-switch p-3 bg-light rounded-3 ms-0 d-flex align-items-center">
+                            <input class="form-check-input ms-0 me-3" type="checkbox" asp-for="IsActive" checked style="width: 2.5em; height: 1.25em;">
+                            <label class="form-check-label fw-bold" asp-for="IsActive">Turnuvayı Hemen Yayına Al</label>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end pt-3 border-top">
+                            <a asp-action="Tournaments" class="btn btn-outline-secondary px-4 me-md-2" style="border-radius: 10px;">İptal</a>
+                            <button type="submit" class="btn text-white px-5 fw-bold" style="background-color: var(--u-turkuaz); border-radius: 10px;">
+                                <i class="bi bi-cloud-upload me-2"></i>Turnuvayı Oluştur
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

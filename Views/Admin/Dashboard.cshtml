@@ -1,0 +1,123 @@
+﻿@{
+    ViewData["Title"] = "Gösterge Paneli";
+}
+
+<div class="container mt-4">
+    <h3 class="fw-bold mb-4"><i class="bi bi-speedometer2 me-2"></i> Sistem Özeti</h3>
+
+    @* --- İSTATİSTİK KARTLARI --- *@
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card p-4 shadow-sm border-0 text-white" style="background-color: #262F59; border-radius: 15px;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="opacity-75 fw-bold mb-1">TOPLAM ÖĞRENCİ</h6>
+                        <h2 class="fw-bold mb-0">@ViewBag.StudentCount</h2>
+                    </div>
+                    <i class="bi bi-people fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-4 shadow-sm border-0 text-white" style="background-color: #17a2b8; border-radius: 15px;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="opacity-75 fw-bold mb-1">AKTİF TURNUVALAR</h6>
+                        <h2 class="fw-bold mb-0">@ViewBag.TournamentCount</h2>
+                    </div>
+                    <i class="bi bi-trophy fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-4 shadow-sm border-0 text-dark" style="background-color: #ffc107; border-radius: 15px;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="opacity-75 fw-bold mb-1">BEKLEYEN BAŞVURULAR</h6>
+                        <h2 class="fw-bold mb-0">@ViewBag.PendingApplications</h2>
+                    </div>
+                    <i class="bi bi-hourglass-split fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* --- TAKVİM BÖLÜMÜ --- *@
+    <div class="row mb-5">
+        <div class="col-md-12">
+            <div class="card shadow-sm border-0" style="border-radius: 15px;">
+                <div class="card-header bg-white py-3" style="border-radius: 15px 15px 0 0; border-bottom: 1px solid #eee;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-calendar3 me-2 text-primary"></i> Turnuva Takvimi</h5>
+                        <small class="text-muted">Turnuvaları görmek için ilgili aya gidiniz.</small>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    @* Takvimin çizileceği yer *@
+                    <div id="calendar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* --- TURNUVA DETAY MODALI --- *@
+<div class="modal fade" id="eventModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 15px;">
+            <div class="modal-header bg-primary text-white" style="border-radius: 15px 15px 0 0;">
+                <h5 class="modal-title fw-bold" id="modalTitle">Turnuva Detayı</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="mb-3">
+                    <label class="text-muted small d-block mb-1">Turnuva Tarihi</label>
+                    <div id="modalDate" class="fw-bold text-dark"></div>
+                </div>
+                <hr>
+                <div>
+                    <label class="text-muted small d-block mb-1">Açıklama</label>
+                    <div id="modalDesc" class="p-3 bg-light rounded" style="min-height: 80px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'tr',
+                themeSystem: 'bootstrap5',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek'
+                },
+                // KRİTİK: Veri buradan çekiliyor
+                events: '/Admin/GetTournamentsForCalendar',
+
+                // Veri yüklenirken hata oluşursa konsola yazdır
+                eventSourceFailure: function(error) {
+                    console.error("Takvim verisi çekilemedi kanka:", error);
+                    alert("Turnuvalar yüklenirken bir hata oluştu. Lütfen AdminController'ı kontrol et.");
+                },
+
+                eventClick: function(info) {
+                    document.getElementById('modalTitle').innerText = info.event.title;
+                    document.getElementById('modalDate').innerText = info.event.start.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+                    document.getElementById('modalDesc').innerText = info.event.extendedProps.description || "Açıklama belirtilmemiş.";
+
+                    var myModal = new bootstrap.Modal(document.getElementById('eventModal'));
+                    myModal.show();
+                }
+            });
+            calendar.render();
+        });
+    </script>
+}

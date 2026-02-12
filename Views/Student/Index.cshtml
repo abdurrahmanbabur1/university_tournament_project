@@ -1,0 +1,83 @@
+﻿@model IEnumerable<UniversityTournamentPro.Models.Tournament>
+
+@{
+    ViewData["Title"] = "Aktif Turnuvalar";
+}
+
+<div class="container mt-5">
+    @* Başarı Mesajı *@
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert" style="border-radius: 12px;">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @* Hata Mesajı *@
+    @if (TempData["Error"] != null || TempData["Message"] != null)
+    {
+        <div class="alert alert-warning alert-dismissible fade show border-0 shadow-sm" role="alert" style="border-radius: 12px;">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @(TempData["Error"] ?? TempData["Message"])
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <h2 class="fw-bold mb-4" style="color: var(--u-mavi);">Sana Uygun Turnuvalar</h2>
+
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm border-0" style="border-radius: 15px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-light text-primary p-2" style="border-radius: 10px; font-weight: 600;">@item.Branch</span>
+                            <span class="text-muted small"><i class="bi bi-calendar-event me-1"></i>@item.StartDate.ToShortDateString()</span>
+                        </div>
+                        <h5 class="card-title fw-bold">@item.Name</h5>
+                        <p class="card-text text-muted" style="font-size: 0.9rem; min-height: 50px;">
+                            @item.Description
+                        </p>
+                    </div>
+
+                    <div class="card-footer bg-white border-0 pb-4 px-4">
+                        <form asp-controller="Student" asp-action="Apply" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="tournamentId" value="@item.Id" />
+
+                            @{
+                                var branch = item.Branch?.ToLower() ?? "";
+                                bool isTeamSport = branch.Contains("futbol") ||
+                                branch.Contains("basketbol") ||
+                                branch.Contains("voleybol") ||
+                                branch.Contains("takım");
+                            }
+
+                            @if (isTeamSport)
+                            {
+                                <div class="mb-3">
+                                    <label class="small fw-bold text-muted mb-1">Takım Adı</label>
+                                    <input type="text" name="teamName" class="form-control"
+                                           placeholder="Takımınızın adını yazın"
+                                           style="border-radius: 8px; font-size: 0.9rem;" required />
+                                </div>
+                            }
+                            else
+                            {
+                                @* 🔥 Bireysel sporsa, Controller'a boş gitmesin diye "Bireysel" yazıyoruz *@
+                                <input type="hidden" name="teamName" value="Bireysel Başvuru" />
+                            }
+
+                            <button type="submit" class="btn w-100 text-white shadow-sm py-2"
+                                    style="background-color: var(--u-mavi); border-radius: 10px; font-weight: 600;">
+                                <i class="bi bi-send-fill me-2"></i>
+                                @(isTeamSport ? "Takım Olarak Başvur" : "Hemen Başvur")
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

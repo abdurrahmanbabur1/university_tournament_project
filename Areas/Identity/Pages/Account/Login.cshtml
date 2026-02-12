@@ -1,0 +1,76 @@
+﻿@page
+@model LoginModel
+
+@{
+    // 1. Adım: URL'den gelen 'role' bilgisini yakalıyoruz
+    var role = Request.Query["role"];
+    var isAdmin = role == "admin";
+
+    // 2. Adım: Başlığı admin/öğrenci durumuna göre ayarlıyoruz
+    ViewData["Title"] = isAdmin ? "Yetkili Giriş Paneli" : "Öğrenci Giriş Paneli";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow-lg border-0" style="border-radius: 20px; position: relative; overflow: hidden;">
+
+                @* --- SAĞ ÜSTE TAŞINAN BAŞLIK VE AMBLEM (Yeşil Alan) --- *@
+                <div class="login-header-right p-4">
+                    @* Adminse kalkan (shield-lock), öğrenciyse kep (mortarboard) ikonu çıksın *@
+                    <i class="bi @(isAdmin ? "bi-shield-lock-fill" : "bi-mortarboard-fill") header-icon-dynamic"></i>
+                    <h5 class="fw-bold m-0" style="color: var(--u-mavi) !important;">@ViewData["Title"]</h5>
+                </div>
+
+                <div class="card-body p-4" style="padding-top: 100px !important;">
+                    @* Karşılama Metni de dinamik olsun *@
+                    <div class="mb-4">
+                        <h4 class="fw-bold" style="color: var(--u-mavi);">@(isAdmin ? "Yönetim Sistemi" : "Hoş Geldiniz")</h4>
+                        <p class="text-muted small">Sisteme erişmek için bilgilerinizi giriniz.</p>
+                    </div>
+
+                    <form id="account" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="ad@ornek.com" style="border-radius: 12px; border: 1px solid #eee;" />
+                            <label asp-for="Input.Email">E-posta Adresi</label>
+                            <span asp-validation-for="Input.Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="şifre" style="border-radius: 12px; border: 1px solid #eee;" />
+                            <label asp-for="Input.Password">Şifre</label>
+                            <span asp-validation-for="Input.Password" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" asp-for="Input.RememberMe" />
+                                <label asp-for="Input.RememberMe" class="form-check-label small text-muted">Beni Hatırla</label>
+                            </div>
+                            <a id="forgot-password" asp-page="./ForgotPassword" class="small fw-bold" style="color: var(--u-turkuaz); text-decoration:none;">Şifremi Unuttum?</a>
+                        </div>
+
+                        <div>
+                            @* Buton rengi de adminse lacivert, öğrenciyse turkuaz olabilir ama şimdilik lacivert stabil kalsın *@
+                            <button id="login-submit" type="submit" class="w-100 btn btn-lg text-white shadow-sm" style="background-color: var(--u-mavi); border-radius: 12px; font-weight: 600; padding: 12px;">
+                                <i class="bi bi-box-arrow-in-right me-2"></i> Giriş Yap
+                            </button>
+                        </div>
+
+                        <div class="mt-4 text-center">
+                            <p class="mb-0 text-muted small">
+                                Hesabın yok mu? <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl" class="fw-bold" style="color: var(--u-turkuaz); text-decoration:none;">Yeni Kayıt Oluştur</a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,202 @@
+﻿@model UniversityTournamentPro.Models.TournamentSelection
+
+@{
+    ViewData["Title"] = "Turnuva Başvurusu";
+}
+
+@* --- 1. ÜST BANNER --- *@
+<div class="row mb-4">
+    <div class="col-12 text-center py-5 text-white shadow-sm" style="background: linear-gradient(135deg, #262F59 0%, #1a1f3d 100%); border-radius: 0 0 30px 30px;">
+        <div class="mb-3">
+            <i class="bi bi-trophy-fill display-1 opacity-25"></i>
+        </div>
+        <h1 class="fw-bold">@Model.Tournament?.Name</h1>
+        <h4 class="fw-light opacity-75">Resmi Katılım ve Takım Başvuru Formu</h4>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <form asp-action="Apply" method="post" id="tournamentForm">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="TournamentId" />
+
+        @* --- 2. BÖLÜM: TAKIM VE SORUMLU BİLGİLERİ --- *@
+        <div class="card shadow-sm border-0 mb-4 rounded-4 overflow-hidden">
+            <div class="card-header bg-white py-3 border-bottom border-light">
+                <h5 class="fw-bold m-0" style="color: #262F59;">
+                    <i class="bi bi-person-badge-fill me-2 text-primary"></i>Takım ve Sorumlu Bilgileri
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-4">
+                    @* Takım Adı: Bunu kullanıcı girecek *@
+                    <div class="col-md-12">
+                        <label class="form-label small fw-bold text-secondary">Takım / Grup Adı *</label>
+                        <input asp-for="TeamName" class="form-control form-control-lg bg-light border-primary shadow-sm" placeholder="Örn: MTÜ Kartalları" required />
+                        <span asp-validation-for="TeamName" class="text-danger small"></span>
+                    </div>
+
+                    @* Bilgilendirme Notu *@
+                    <div class="col-12">
+                        <div class="alert alert-secondary border-0 mb-0 small">
+                            <i class="bi bi-info-circle me-2"></i> Aşağıdaki bilgiler profilinizden otomatik olarak alınmıştır ve başvuruya eklenecektir.
+                        </div>
+                    </div>
+
+                    @* Bu alanlar controller'da doldurulduğu için burada sadece bilgi amaçlı durabilir veya 'hidden' gönderebilirsin *@
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold text-muted">Fakülte</label>
+                        <input class="form-control bg-light border-0 shadow-none" value="Profilinizden Alınacak" readonly />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold text-muted">Kaptan (Siz)</label>
+                        <input class="form-control bg-light border-0 shadow-none" value="@User.Identity.Name" readonly />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold text-muted">İletişim</label>
+                        <input class="form-control bg-light border-0 shadow-none" value="Kayıtlı Telefonunuz" readonly />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* --- 3. BÖLÜM: OYUNCU LİSTESİ --- *@
+        <div class="card shadow-sm border-0 mb-4 rounded-4 overflow-hidden">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom border-light">
+                <h5 class="fw-bold m-0" style="color: #262F59;">
+                    <i class="bi bi-people-fill me-2 text-primary"></i>Takım Oyuncuları
+                </h5>
+                <button type="button" class="btn btn-primary btn-sm rounded-pill px-4 fw-bold shadow-sm" onclick="addRow()">
+                    <i class="bi bi-plus-circle me-1"></i> Oyuncu Ekle
+                </button>
+            </div>
+            <div class="card-body p-4">
+                <div class="alert alert-info border-0 shadow-sm mb-4 small">
+                    <i class="bi bi-info-circle-fill me-2"></i> Takım arkadaşlarınızın bilgilerini giriniz. (En az 1 oyuncu zorunludur)
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-borderless align-middle" id="playersTable">
+                        <thead class="bg-light rounded-3">
+                            <tr class="text-secondary small fw-bold">
+                                <th style="width: 60px;" class="ps-3">#</th>
+                                <th>AD SOYAD</th>
+                                <th>ÖĞRENCİ NO</th>
+                                <th style="width: 150px;">FORMA NO</th>
+                                <th style="width: 50px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody class="border-top">
+                            <tr>
+                                <td class="fw-bold text-muted ps-3">1</td>
+                                <td><input name="PlayerNames" class="form-control border-0 bg-light shadow-none" placeholder="Oyuncu Adı" required /></td>
+                                <td><input name="PlayerNumbers" class="form-control border-0 bg-light shadow-none" placeholder="Öğrenci No" required /></td>
+                                <td><input name="PlayerJerseys" class="form-control border-0 bg-light shadow-none" placeholder="No" /></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        @* --- 4. SÖZLEŞME VE ONAY --- *@
+        <div class="text-center mt-5">
+            <div class="mb-4">
+                <div class="form-check d-inline-block text-start">
+                    <input class="form-check-input" type="checkbox" id="kvkkCheck" required>
+                    <label class="form-check-label small text-muted" for="kvkkCheck">
+                        Turnuva kurallarını ve katılım şartlarını kabul ediyorum.
+                    </label>
+                </div>
+            </div>
+
+            <div class="d-flex flex-wrap gap-3 justify-content-center">
+                <a asp-action="Index" class="btn btn-outline-secondary px-5 rounded-pill fw-bold">
+                    <i class="bi bi-arrow-left me-2"></i>İPTAL ET
+                </a>
+                <button type="submit" class="btn text-white px-5 rounded-pill fw-bold shadow-lg py-3" style="background-color: #262F59; min-width: 250px;">
+                    BAŞVURUYU TAMAMLA <i class="bi bi-send-fill ms-2"></i>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        // --- YENİ VE AKILLI SATIR EKLEME FONKSİYONU ---
+        function addRow() {
+            const tableBody = document.querySelector("#playersTable tbody");
+            const row = tableBody.insertRow();
+
+            // Yeni satırın içeriği (Numara kısmı boş, aşağıda dolduracağız)
+            row.innerHTML = `
+                <td class="fw-bold text-muted ps-3 row-number"></td>
+                <td><input name="PlayerNames" class="form-control border-0 bg-light shadow-none" placeholder="Oyuncu Adı" required /></td>
+                <td><input name="PlayerNumbers" class="form-control border-0 bg-light shadow-none" placeholder="Öğrenci No" required /></td>
+                <td><input name="PlayerJerseys" class="form-control border-0 bg-light shadow-none" placeholder="No" /></td>
+                <td>
+                    <button type="button" class="btn btn-link text-danger p-0" onclick="removeRow(this)">
+                        <i class="bi bi-dash-circle-fill fs-5"></i>
+                    </button>
+                </td>
+            `;
+
+            // Numaraları güncelle (1, 2, 3... diye sıraya dizer)
+            updateRowNumbers();
+        }
+
+        // --- SATIR SİLME VE NUMARA GÜNCELLEME ---
+        function removeRow(btn) {
+            // Silme efektini ekle (isteğe bağlı, daha şık durur)
+            const row = btn.closest('tr');
+            row.classList.add('animate__animated', 'animate__fadeOutLeft');
+
+            // Efekt bitince satırı sil ve numaraları güncelle
+            setTimeout(() => {
+                row.remove();
+                updateRowNumbers();
+            }, 500); // 0.5 saniye bekle
+        }
+
+        // --- TÜM SATIR NUMARALARINI YENİDEN HESAPLAYAN SİHİRLİ FONKSİYON ---
+        function updateRowNumbers() {
+            const rows = document.querySelectorAll("#playersTable tbody tr");
+            rows.forEach((row, index) => {
+                // Her satırın numara hücresini bul ve sırasını (index + 1) yaz
+                row.querySelector('.row-number').innerText = index + 1;
+            });
+        }
+
+        // --- SAYFA İLK AÇILDIĞINDA İLK SATIRI NUMARALANDIR ---
+        document.addEventListener('DOMContentLoaded', function() {
+            updateRowNumbers();
+        });
+
+        // Form gönderilirken butonu kilitleme (Aynı kalıyor)
+        document.getElementById('tournamentForm').onsubmit = function() {
+            const btn = this.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> İşleniyor...';
+        };
+    </script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+}
+
+<style>
+    .form-control:focus {
+        background-color: #fff !important;
+        border: 1px solid #262F59 !important;
+        box-shadow: 0 0 0 0.25rem rgba(38, 47, 89, 0.1) !important;
+    }
+
+    .card {
+        transition: transform 0.2s;
+    }
+
+        .card:hover {
+            transform: translateY(-3px);
+        }
+</style>

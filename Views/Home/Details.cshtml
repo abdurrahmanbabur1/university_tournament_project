@@ -1,0 +1,107 @@
+﻿@model UniversityTournamentPro.Models.Tournament
+
+@{
+    ViewData["Title"] = Model.Name + " Detayları";
+}
+
+@* --- ÜST BANNER: Modern Lacivert Tasarım --- *@
+<div class="row mb-4">
+    <div class="col-12 text-center py-5 text-white shadow-sm" style="background: linear-gradient(135deg, #262F59 0%, #1a1f3d 100%); border-radius: 0 0 30px 30px;">
+        <div class="mb-3">
+            <i class="bi bi-info-circle-fill display-4 opacity-50"></i>
+        </div>
+        <h1 class="fw-bold">@Model.Name</h1>
+        <p class="opacity-75 fs-5">@Model.Branch Turnuvası Hakkında Her Şey</p>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="row g-4">
+        @* --- SOL TARAF: Açıklama ve Kurallar --- *@
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 rounded-4 p-4 mb-4">
+                <h4 class="fw-bold mb-3" style="color: #262F59;">
+                    <i class="bi bi-text-left me-2 text-primary"></i>Turnuva Açıklaması
+                </h4>
+                <p class="text-muted fs-6" style="line-height: 1.8; text-align: justify;">
+                    @Model.Description
+                </p>
+
+                <hr class="my-4 opacity-25">
+
+                <h4 class="fw-bold mb-3 text-danger">
+                    <i class="bi bi-shield-exclamation me-2"></i>Genel Katılım Kuralları
+                </h4>
+                <div class="bg-light p-3 rounded-3">
+                    <ul class="mb-0 text-secondary">
+                        <li class="mb-2">Tüm takım üyelerinin üniversitemiz öğrencisi olması zorunludur.</li>
+                        <li class="mb-2">Maç saatinden en az 15 dakika önce sahada hazır bulunulmalıdır.</li>
+                        <li class="mb-2">Sportmenlik dışı davranışlar takımın turnuvadan ihraç edilmesine sebep olur.</li>
+                        <li>Sağlık raporu veya öğrenci belgesi istenebilir.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        @* --- SAĞ TARAF: Özet Bilgi ve Başvuru Butonu --- *@
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 rounded-4 p-4 sticky-top" style="top: 20px; z-index: 10;">
+                <h5 class="fw-bold mb-4" style="color: #262F59;">Turnuva Künyesi</h5>
+
+                <div class="d-flex align-items-center mb-3">
+                    <div class="rounded-circle bg-light p-3 me-3">
+                        <i class="bi bi-calendar-check text-primary fs-4"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block small">Başlangıç Tarihi</small>
+                        <span class="fw-bold">@Model.StartDate.ToString("dd MMMM yyyy")</span>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center mb-3">
+                    <div class="rounded-circle bg-light p-3 me-3">
+                        <i class="bi bi-trophy text-warning fs-4"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block small">Branş</small>
+                        <span class="fw-bold">@Model.Branch</span>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center mb-4">
+                    <div class="rounded-circle bg-light p-3 me-3">
+                        <i class="bi bi-geo-alt text-danger fs-4"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block small">Konum</small>
+                        <span class="fw-bold">Üniversite Merkez Sahası</span>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    @* Burası çok önemli: Öğrenciyi başvuru formuna uçurur *@
+                    <a asp-controller="Student" asp-action="Apply" asp-route-id="@Model.Id" class="btn btn-primary btn-lg rounded-pill fw-bold shadow-sm py-3">
+                        HEMEN BAŞVUR <i class="bi bi-arrow-right-short ms-1"></i>
+                    </a>
+                    <a asp-action="Index" class="btn btn-outline-secondary btn-sm rounded-pill border-0">
+                        Ana Sayfaya Dön
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .card {
+        transition: all 0.3s ease;
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+</style>

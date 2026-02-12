@@ -1,0 +1,167 @@
+﻿@model IEnumerable<UniversityTournamentPro.Models.TournamentSelection>
+
+@{
+    ViewData["Title"] = "Takım Başvuruları";
+}
+
+<div class="container mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold" style="color: #262F59;">
+            <i class="bi bi-clipboard-check me-2 text-primary"></i>Turnuva Başvuruları
+        </h2>
+        <span class="badge bg-info px-3 py-2 rounded-pill shadow-sm">
+            Toplam @Model.Count() Başvuru
+        </span>
+    </div>
+
+    <div class="card shadow-lg border-0" style="border-radius: 20px; overflow: hidden;">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">Takım / Kaptan</th>
+                            <th>Turnuva</th>
+                            <th class="text-center">Oyuncular</th>
+                            <th class="text-center">Tarih</th>
+                            <th class="text-center">Durum</th>
+                            <th class="text-center">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted">
+                                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                    Henüz incelenecek bir başvuru bulunmuyor.
+                                </td>
+                            </tr>
+                        }
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="fw-bold text-dark">@item.TeamName</div>
+                                    <small class="text-muted d-block">
+                                        <i class="bi bi-person-fill me-1"></i> @item.TeamManager
+                                    </small>
+                                    <small class="text-secondary" style="font-size: 0.75rem;">
+                                        @item.Faculty / @item.ManagerStudentNumber
+                                    </small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2">
+                                        @item.Tournament?.Name
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    @* --- OYUNCU LİSTESİ BUTONU --- *@
+                                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-sm"
+                                            data-bs-toggle="modal" data-bs-target="#playersModal-@item.Id">
+                                        <i class="bi bi-people-fill me-1"></i> Listeyi Gör
+                                    </button>
+
+                                    @* --- OYUNCU DETAY MODALI --- *@
+                                    <div class="modal fade" id="playersModal-@item.Id" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content border-0 shadow-lg" style="border-radius: 15px;">
+                                                <div class="modal-header bg-primary text-white" style="border-radius: 15px 15px 0 0;">
+                                                    <h5 class="modal-title fw-bold">@item.TeamName - Kadro</h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body p-0">
+                                                    <div class="list-group list-group-flush">
+                                                        @if (!string.IsNullOrEmpty(item.TeamPlayers))
+                                                        {
+                                                            var playerList = item.TeamPlayers.Split(';');
+                                                            foreach (var player in playerList)
+                                                            {
+                                                                if (!string.IsNullOrEmpty(player))
+                                                                {
+                                                                    <div class="list-group-item d-flex align-items-center py-3">
+                                                                        <i class="bi bi-person-circle fs-5 me-3 text-secondary"></i>
+                                                                        <span class="text-dark fw-medium">@player</span>
+                                                                    </div>
+                                                                }
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="p-4 text-center text-muted italic">Oyuncu bilgisi bulunamadı.</div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer border-0">
+                                                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Kapat</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center small text-muted">
+                                    @item.SelectionDate.ToString("dd.MM.yyyy")
+                                </td>
+                                <td class="text-center">
+                                    @{
+                                        var badgeClass = item.Status switch
+                                        {
+                                            "Onaylandı" => "bg-success text-white",
+                                            "Reddedildi" => "bg-danger text-white",
+                                            _ => "bg-warning text-dark"
+                                        };
+                                    }
+                                    <span class="badge @badgeClass rounded-pill px-3 py-2 shadow-sm">@item.Status</span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <form asp-action="UpdateApplicationStatus" method="post" class="d-inline">
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <button type="submit" name="status" value="Onaylandı" class="btn btn-sm btn-success rounded-3 shadow-sm p-2" title="Onayla">
+                                                <i class="bi bi-check-lg fs-6"></i>
+                                            </button>
+                                            <button type="submit" name="status" value="Reddedildi" class="btn btn-sm btn-danger rounded-3 shadow-sm p-2" title="Reddet">
+                                                <i class="bi bi-x-lg fs-6"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --u-mavi: #262F59;
+    }
+
+    .bg-primary-subtle {
+        background-color: #eef2ff;
+    }
+
+    .table thead th {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #555;
+        padding: 18px 15px;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f8fafc;
+        transition: 0.2s;
+    }
+
+    .rounded-3 {
+        border-radius: 12px !important;
+    }
+
+    .modal-header .btn-close {
+        filter: brightness(0) invert(1);
+    }
+</style>
