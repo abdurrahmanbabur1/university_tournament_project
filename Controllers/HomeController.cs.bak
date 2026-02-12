@@ -2,9 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using UniversityTournamentPro.Data;
 using UniversityTournamentPro.Models;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 
 namespace UniversityTournamentPro.Controllers
 {
@@ -17,33 +14,25 @@ namespace UniversityTournamentPro.Controllers
             _context = context;
         }
 
-        // --- ANA SAYFA: Maçlar, Duyurular ve Admin Uyarı Sayısı ---
+        // --- ANA SAYFA: Ma�lar, Duyurular ve Admin Uyar� Say�s� ---
         public async Task<IActionResult> Index()
         {
             var viewModel = new HomeViewModel
             {
-                // Müsabakaları, bağlı oldukları turnuva bilgisiyle (branş, kontenjan vb.) çekiyoruz
+                // Yakla�an son 5 ma�� �ekiyoruz
                 Matches = await _context.Matches
                     .Include(m => m.Tournament)
-                    .OrderBy(m => m.MatchDate)
+                    .OrderByDescending(m => m.MatchDate)
+                    .Take(5)
                     .ToListAsync(),
 
-                // Turnuvaları da takvimde göstermek için çekiyoruz
-                Tournaments = await _context.Tournaments
-                    .Where(t => t.IsActive)
-                    .OrderBy(t => t.StartDate)
-                    .ToListAsync(),
-
-                // Duyuruları bağlı oldukları turnuva bilgisiyle çekiyoruz
+                // --- G�NCELLEME: Duyurular� ba�l� olduklar� turnuva bilgisiyle �ekiyoruz ---
                 Announcements = await _context.Announcements
-                    .Include(a => a.Tournament)
+                    .Include(a => a.Tournament) // Duyuru-Turnuva k�pr�s�n� burada kuruyoruz
                     .Where(a => a.IsActive)
                     .OrderByDescending(a => a.CreatedDate)
                     .Take(5)
                     .ToListAsync(),
-
-                // Branşları emojileriyle birlikte çekiyoruz
-                Branches = await _context.Branches.ToListAsync(),
 
                 PendingUserCount = await _context.Users.CountAsync(u => !u.IsApproved)
             };
@@ -52,21 +41,26 @@ namespace UniversityTournamentPro.Controllers
         }
 
         // --- TURNUVA DETAYLARI ---
+        // ��renci duyuruya t�klad���nda o duyurunun 'TournamentId'si buraya gelir
         public async Task<IActionResult> Details(int? id)
         {
+            // E�er ID gelmemi�se veya yanl�� gelmi�se ana sayfaya geri yolla
             if (id == null)
             {
                 return RedirectToAction(nameof(Index));
             }
 
+            // Veritaban�nda o spesifik turnuvay� buluyoruz
             var tournament = await _context.Tournaments
                 .FirstOrDefaultAsync(t => t.Id == id);
 
+            // E�er veritaban�nda b�yle bir turnuva kalmam��sa (silinmi�se) 404 ver
             if (tournament == null)
             {
                 return NotFound();
             }
 
+            // Buldu�umuz turnuvay� Details.cshtml sayfas�na "Model" olarak g�nderiyoruz
             return View(tournament);
         }
 
